@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @since             1.0.0
  * @package           WpPluginBoilerplate
@@ -11,44 +10,109 @@
  * Author:            Pierre Hunout
  * Author URI:        https://pierrehunout.com/
  * Text Domain:       wp-plugin-boilerplate
+ * License:           GPL-2.0-or-later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Requires at least: 5.0
+ * Requires PHP:      7.4
+ * GitHub Plugin URI:  PierreHunout/wp-plugin-boilerplate
  */
 
 namespace WpPluginBoilerplate;
 
-// If this file is called directly, abort.
+/**
+ * This check prevents direct access to the plugin file,
+ * ensuring that it can only be accessed through WordPress.
+ * 
+ * @since 1.0.0
+ */
 if (!defined('WPINC')) {
 	die;
 }
 
+/**
+ * The plugin version.
+ *
+ * @since 1.0.0
+ */
 define('WP_PLUGIN_BOILERPLATE_VERSION', '1.0.0');
+
+/**
+ * The plugin file.
+ *
+ * @since 1.0.0
+ */
 define('WP_PLUGIN_BOILERPLATE_FILE', __FILE__);
+
+/**
+ * The plugin path.
+ *
+ * @since 1.0.0
+ */
 define('WP_PLUGIN_BOILERPLATE_PATH', plugin_dir_path(WP_PLUGIN_BOILERPLATE_FILE));
+
+/**
+ * The plugin URL.
+ *
+ * @since 1.0.0
+ */
 define('WP_PLUGIN_BOILERPLATE_BASENAME', plugin_basename(WP_PLUGIN_BOILERPLATE_FILE));
+
+/**
+ * The plugin slug.
+ *
+ * This is the directory name of the plugin, which is used in URLs and other references.
+ *
+ * @since 1.0.0
+ */
 define('WP_PLUGIN_BOILERPLATE_SLUG', dirname(WP_PLUGIN_BOILERPLATE_BASENAME));
+
+/**
+ * The plugin CSS URL.
+ *
+ * This constant is used to reference the CSS files of the plugin.
+ *
+ * @since 1.0.0
+ */
 define('WP_PLUGIN_BOILERPLATE_CSS', plugins_url('assets/css/', __FILE__));
+
+/**
+ * The plugin JS URL.
+ *
+ * This constant is used to reference the JavaScript files of the plugin.
+ *
+ * @since 1.0.0
+ */
 define('WP_PLUGIN_BOILERPLATE_JS', plugins_url('assets/js/', __FILE__));
 
-// Support for site-level autoloading.
+/** 
+ * If you don't want to use the autoloading feature, you can comment the following line.
+ * 
+ * It will include the autoload.php file from the lib directory.
+ * Make sure that the autoload.php file exists in the lib directory.
+ */
 if (file_exists(__DIR__ . '/lib/autoload.php')) {
 	require_once __DIR__ . '/lib/autoload.php';
 }
 
 class WpPluginBoilerplate
 {
+
 	/**
-	 * Holds the class instance
+	 * @since 1.0.0
 	 * 
-	 * @var WpPluginBoilerplate $instance
+	 * This variable is used to implement the Singleton pattern,
+	 * ensuring that only one instance of the class exists.
 	 */
 	private static $instance = null;
 
-
 	/**
-	 * Return an instance of the WpPluginBoilerplate Class.
+	 * Get the instance of the WpPluginBoilerplate class.
+	 * 
+	 * This method implements the Singleton pattern to ensure that only one instance of the class exists.
 	 * 
 	 * @since 1.0.0
 	 * 
-	 * @return WpPluginBoilerplate class instance
+	 * @return WpPluginBoilerplate
 	 */
 	public static function get_instance()
 	{
@@ -60,19 +124,31 @@ class WpPluginBoilerplate
 	}
 
 	/**
-	 * Class initializer.
+	 * This method is called when the plugin is loaded.
 	 * 
+	 * It sets up the necessary actions and runs the enqueue and file loading methods.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @return void
 	 */
 	public function plugin_loaded()
 	{
-		Admin\Settings::run();
-
 		self::run_enqueue();
 		self::run_files();
 	}
 
-	/**
-	 * Run Files
+	/**	
+	 * Run all files in the includes directory.
+	 * 
+	 * This method scans the 'includes' directory for subdirectories,
+	 * and then scans each subdirectory for PHP files.
+	 * It instantiates each class found in the files
+	 * and calls its `run` method.
+	 * 
+	 * @since 1.0.0
+	 * 
+	 * @return void
 	 */
 	public static function run_files()
 	{
@@ -85,7 +161,7 @@ class WpPluginBoilerplate
 				foreach ($files as $file) {
 					if (pathinfo($file, PATHINFO_EXTENSION)) {
 						$name 	= basename($file, '.php');
-						$class	= 'WpPluginBoilerplate\\Front\\' . $name;
+						$class	= 'WpPluginBoilerplate\\' . $directory . '\\' . $name;
 						$new 	= new $class;
 						$new->run();
 					}
@@ -106,7 +182,8 @@ class WpPluginBoilerplate
 	}
 
 	/**
-	 * Enqueue Admin styles & scripts
+	 * This method enqueues the styles and scripts for the admin area of the plugin.
+	 * It uses WordPress functions to load the CSS and JS files with the appropriate versioning.
 	 * 
 	 * @since 1.0.0
 	 */
@@ -117,7 +194,8 @@ class WpPluginBoilerplate
 	}
 
 	/**
-	 * Enqueue Frontend styles & scripts
+	 * This method enqueues the styles and scripts for the frontend of the plugin.
+	 * It uses WordPress functions to load the CSS and JS files with the appropriate versioning.
 	 * 
 	 * @since 1.0.0
 	 */
@@ -129,9 +207,12 @@ class WpPluginBoilerplate
 	}
 
 	/**
-	 * Make data available in jQuery
+	 * This method localizes a script by passing an array of parameters to it.
+	 * The parameters can be accessed in the JavaScript file as a global variable.
 	 * 
 	 * @since 1.0.0
+	 * 
+	 * @return void
 	 */
 	public static function localize_jquery()
 	{
@@ -142,6 +223,12 @@ class WpPluginBoilerplate
 	}
 }
 
+/**
+ * This action hook is triggered when the plugin is loaded.
+ * It calls the `plugin_loaded` method of the WpPluginBoilerplate class.
+ * 
+ * @since 1.0.0
+ */
 add_action(
 	'plugin_loaded',
 	function () {
