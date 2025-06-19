@@ -1,0 +1,17 @@
+{
+    "name": "pierrehunoutplugins/wppluginboilerplate",
+    "description": "Basic Plugin with PSR-4 autoload.",
+    "authors": [
+        {
+            "name": "Pierre Hunout"
+        }
+    ],
+    "config": {
+        "vendor-dir": "lib"
+    },
+    "autoload": {
+        "psr-4": {
+            "WpPluginBoilerplate\\": "includes/"
+        }
+    }
+}
