@@ -1,15 +1,15 @@
 <?php
+
 /**
  * This file is responsible for handling the page functionality in the WordPress plugin.
  * It includes methods to run the page functionality and can be extended in the future.
  * 
- * @package WpPluginBoilerplate
+ * @package MyPluginBoilerplate
+ * 
  * @since 1.0.0
- * @version 1.0.0
- * @author Pierre Hunout <https://pierrehunout.com/>
  */
 
-namespace WpPluginBoilerplate\Front;
+namespace MyPluginBoilerplate\Features;
 
 /**
  * This check prevents direct access to the plugin file,
@@ -31,8 +31,8 @@ class Page
      * 
      * @return void
      */
-    public function run()
+    public function run() : void
     {
-
+        // Do something here
     }
 }
