@@ -1,15 +1,15 @@
 <?php
+
 /**
  * This file is responsible for setting default options in the WordPress installation.
  * It includes methods to run the settings and set various default options.
  * 
- * @package WpPluginBoilerplate
+ * @package MyPluginBoilerplate
+ * 
  * @since 1.0.0
- * @version 1.0.0
- * @author Pierre Hunout <https://pierrehunout.com/>
  */
 
-namespace WpPluginBoilerplate\Admin;
+namespace MyPluginBoilerplate\Admin;
 
 /**
  * This check prevents direct access to the plugin file,
@@ -30,9 +30,11 @@ class Settings
 	 * This function hooks into the 'admin_init' action to set default options
 	 * when the WordPress admin is initialized.
 	 * 
+	 * @since 1.0.0
+	 * 
 	 * @return void
 	 */
-	public function run()
+	public function run() : void
 	{
 		add_action('admin_init', [static::class, 'set_defaults']);
 	}
@@ -45,14 +47,12 @@ class Settings
 	 * It updates various settings such as avatar defaults, comment settings,
 	 * permalink structure, and more.
 	 * 
-	 * @global \wpdb $wpdb WordPress database object.
+	 * @since 1.0.0
 	 * 
 	 * @return void
 	 */
-	public static function set_defaults()
+	public static function set_defaults() : void
 	{
-		global $wpdb;
-
 		$options = [
 			'avatar_default'            => 'blank',
 			'comment_max_links'         => 0,
@@ -74,8 +74,6 @@ class Settings
 		}
 
 		wp_delete_comment(1);
-
-		$wpdb->query("DELETE FROM $wpdb->links WHERE link_id != ''");
 
 		return;
 	}
