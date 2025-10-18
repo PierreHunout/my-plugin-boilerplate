@@ -1,4 +1,0 @@
-parameters
-    ignoreErrors:
-        -
-            identifier: constant.notFound

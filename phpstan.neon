@@ -1,9 +1,0 @@
-includes:
-    - phpstan-baseline.neon
-
-parameters:
-    tipsOfTheDay: false
-    treatPhpDocTypeAsCertain: false
-    level: 5
-    excludePaths:
-        - lib/
