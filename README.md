@@ -15,22 +15,24 @@ This plugin serves as a starting point for developing WordPress plugins with mod
 
 ## Features
 
-- ✅ PSR-4 autoloading for clean code organization
-- ✅ Composer integration for dependency management
-- ✅ **WordPress Coding Standards** (WordPress, WordPress-Core, WordPress-Docs, WordPress-Extra)
-- ✅ **Automated Code Quality** with PHP_CodeSniffer and WordPress standards
-- ✅ **Complete PHPUnit Testing Suite** with unit and integration tests
-- ✅ **Code Coverage Reports** for quality assurance
-- ✅ **Composer Scripts** for streamlined development workflow
-- ✅ WordPress Blocks development with @wordpress/scripts
-- ✅ Both static and dynamic blocks examples included
-- ✅ **Automatic Block Registration** system with WP_Filesystem
-- ✅ Modern JavaScript ES6+ and React support
-- ✅ SCSS/CSS compilation and optimization
-- ✅ WordPress i18n ready with proper textdomain
-- ✅ Security checks preventing direct file access
-- ✅ Modern PHP 7.4+ compatibility
-- ✅ WordPress 5.0+ compatibility
+- PSR-4 autoloading for clean code organization
+- Composer integration for dependency management
+- **WordPress Coding Standards** (WordPress, WordPress-Core, WordPress-Docs, WordPress-Extra)
+- **Automated Code Quality** with PHP_CodeSniffer and WordPress standards
+- **Complete PHPUnit Testing Suite** with unit and integration tests
+- **Code Coverage Reports** for quality assurance
+- **Composer Scripts** for streamlined development workflow
+- **Debug and Logging System** with secure JSON logging to `wp-content/`
+- **Visual Debug Output** with WordPress-style formatting
+- WordPress Blocks development with @wordpress/scripts
+- Both static and dynamic blocks examples included
+- **Automatic Block Registration** system with WP_Filesystem
+- Modern JavaScript ES6+ and React support
+- SCSS/CSS compilation and optimization
+- WordPress i18n ready with proper textdomain
+- Security checks preventing direct file access
+- Modern PHP 7.4+ compatibility
+- WordPress 5.0+ compatibility
 
 ## Installation
 
@@ -171,13 +173,13 @@ export WP_TESTS_DIR=/tmp/wordpress-tests-lib
 
 The plugin includes a comprehensive PHPCS configuration (`phpcs.xml.dist`) with:
 
-- ✅ WordPress coding standards (WordPress, WordPress-Core, WordPress-Docs, WordPress-Extra)
-- ✅ Variable analysis for unused variables detection
-- ✅ PHP 7.4+ compatibility checks
-- ✅ WordPress 5.0+ minimum version support
-- ✅ Automatic exclusion of vendor, node_modules, build directories
-- ✅ Parallel processing for faster analysis
-- ✅ Custom prefixes configuration for WordPress globals
+- WordPress coding standards (WordPress, WordPress-Core, WordPress-Docs, WordPress-Extra)
+- Variable analysis for unused variables detection
+- PHP 7.4+ compatibility checks
+- WordPress 5.0+ minimum version support
+- Automatic exclusion of vendor, node_modules, build directories
+- Parallel processing for faster analysis
+- Custom prefixes configuration for WordPress globals
 
 ### WordPress Blocks Development
 
@@ -246,27 +248,42 @@ my-plugin-boilerplate/
 │   ├── static/          # Built static blocks
 │   └── blocks-manifest.php
 ├── includes/            # PHP classes (PSR-4 autoloaded)
+│   ├── Action/          # WordPress actions and hooks
+│   ├── Admin/           # Admin interface classes
+│   ├── Blocks/          # Block registration and management
+│   ├── Debug/           # Logging and debug utilities
+│   ├── Login/           # User authentication features
+│   └── PostType/        # Custom post types
 ├── languages/           # Translation files
 ├── node_modules/        # Node.js dependencies
 ├── src/                 # WordPress blocks source code
 │   ├── dynamic/         # Dynamic (server-rendered) blocks
 │   └── static/          # Static (client-rendered) blocks
 ├── vendor/              # Composer dependencies
+├── tests/              # PHPUnit test suite
+│   ├── bootstrap.php   # Test bootstrap file
+│   ├── unit/           # Unit tests
+│   ├── integration/    # Integration tests
+│   └── logs/           # Test logs and reports
 ├── composer.json        # Composer configuration
 ├── package.json         # Node.js dependencies and scripts
 ├── phpcs.xml.dist      # PHPCS configuration (WordPress standards)
 ├── phpcs.xml           # Local PHPCS configuration (gitignored)
 ├── phpunit.xml.dist    # PHPUnit configuration
 ├── phpunit.xml         # Local PHPUnit configuration (gitignored)
-├── tests/              # PHPUnit test suite
-│   ├── bootstrap.php   # Test bootstrap file
-│   ├── unit/           # Unit tests
-│   ├── integration/    # Integration tests
-│   └── logs/           # Test logs and reports
 ├── yarn.lock           # Yarn lock file
 ├── .gitignore          # Git ignore rules
 ├── my-plugin-boilerplate.php  # Main plugin file
+├── uninstall.php       # Plugin cleanup on uninstall
+├── readme.txt          # WordPress.org repository readme
 └── README.md           # This file
+
+# Generated at runtime (wp-content level):
+wp-content/
+└── my-plugin-boilerplate-logs/  # Secure debug logs (outside plugin)
+    ├── .htaccess                # Access protection
+    ├── index.php                # Directory browsing protection
+    └── *.json                   # Timestamped log files
 ```
 
 ### Autoloading
@@ -292,19 +309,130 @@ The plugin is translation-ready with the textdomain `my-plugin-boilerplate`. All
 - Translators comments for placeholder clarification
 - Proper textdomain usage
 
-## Contributing
+## Debug and Logging System
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes following the coding standards
-4. Run tests and code analysis
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+The plugin includes a comprehensive logging system for development and debugging purposes.
 
-### Code Quality Checks
+### Log System Features
 
-Before submitting a PR, ensure your code passes all quality checks:
+- **Secure logging** to `wp-content/my-plugin-boilerplate-logs/`
+- **Debug mode control** via `MY_PLUGIN_BOILERPLATE_DEBUG` constant
+- **Structured JSON logging** with timestamps, data types, and metadata
+- **Automatic security protection** with `.htaccess` and `index.php`
+- **Fallback error logging** when file writing fails
+- **WordPress filesystem integration** for secure file operations
+
+### Enabling Debug Mode
+
+Add this constant to your `wp-config.php` or define it in the plugin:
+
+```php
+define( 'MY_PLUGIN_BOILERPLATE_DEBUG', true );
+```
+
+### Using the Log System
+
+#### File Logging
+
+Log data to JSON files with structured information:
+
+```php
+use MyPluginBoilerplate\Debug\Log;
+
+// Log simple data
+Log::log( 'user_action', 'User clicked button' );
+
+// Log complex data structures
+Log::log( 'form_data', [
+    'user_id' => get_current_user_id(),
+    'form_fields' => $_POST,
+    'timestamp' => current_time( 'mysql' )
+] );
+
+// Log error information
+Log::log( 'error', [
+    'message' => $exception->getMessage(),
+    'file' => $exception->getFile(),
+    'line' => $exception->getLine()
+] );
+```
+
+#### Visual Debug Output
+
+Display formatted debug information on screen (only when debug is enabled):
+
+```php
+use MyPluginBoilerplate\Debug\Log;
+
+// Display data and continue execution
+Log::print( $data );
+
+// Display data and stop execution
+Log::print( $data, true );
+```
+
+### Log File Structure
+
+Log files are automatically organized with security in mind:
+
+```text
+wp-content/
+└── my-plugin-boilerplate-logs/
+    ├── .htaccess              # Blocks direct access to log files
+    ├── index.php              # Prevents directory browsing
+    ├── user_action-1729123456.json
+    ├── form_data-1729123789.json
+    └── error-1729124012.json
+```
+
+### JSON Log Format
+
+Each log entry contains structured information:
+
+```json
+{
+    "date": "2024-10-16 14:30:45+00:00",
+    "type": "array",
+    "data": {
+        "user_id": 1,
+        "action": "form_submission",
+        "details": "Contact form submitted successfully"
+    }
+}
+```
+
+### Security Features
+
+- **Protected directory**: `.htaccess` prevents direct access to log files
+- **No directory browsing**: `index.php` blocks directory listing
+- **Debug-only operation**: Logs only when `MY_PLUGIN_BOILERPLATE_DEBUG` is enabled
+- **Secure file permissions**: `0755` for directories, `0644` for files
+- **WordPress filesystem**: Uses `WP_Filesystem` for secure file operations
+
+### Log Management
+
+**Automatic cleanup:** Log files persist across plugin updates and are stored outside the plugin directory.
+
+**Manual cleanup:** To remove all logs:
+
+```bash
+# Remove all log files
+rm -rf wp-content/my-plugin-boilerplate-logs/
+```
+
+**Production safety:** Logs are automatically disabled in production when `MY_PLUGIN_BOILERPLATE_DEBUG` is `false`.
+
+### Debug Output Features
+
+The visual debug output includes:
+
+- **Data type detection** (string, array, object, etc.)
+- **JSON formatting** for readability
+- **WordPress-style UI** with proper escaping
+- **Conditional display** (only when debug mode is enabled)
+- **Safe termination** using `wp_die()` instead of `die()`
+
+## Code Quality Checks
 
 **PHP Quality Checks:**
 
@@ -381,12 +509,15 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE](https://w
 - PSR-4 autoloading implementation
 - Composer integration with automated scripts
 - **WordPress Coding Standards** complete integration (PHPCS)
+- **Debug and Logging System** with secure JSON logging to `wp-content/`
+- **Visual Debug Output** with WordPress-style formatting and security
 - **Automatic Block Registration** system with security (WP_Filesystem)
 - WordPress Blocks development environment (@wordpress/scripts)
 - Advanced code quality tools with variable analysis
 - WordPress i18n compliance with modern practices
-- Comprehensive security enhancements
+- Comprehensive security enhancements (`.htaccess`, directory protection)
 - Development workflow optimization
+- Complete PHPUnit testing framework integration
 
 ## Support
 

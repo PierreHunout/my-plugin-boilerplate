@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is responsible for handling the login functionality in the WordPress plugin.
  * It includes methods to run the login functionality and can be extended in the future.
@@ -21,6 +20,13 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+/**
+ * Class LoginLogic
+ *
+ * Handles LoginLogic functionality for the plugin.
+ *
+ * @since 1.0.0
+ */
 class LoginLogic {
 
 	/**
@@ -28,6 +34,8 @@ class LoginLogic {
 	 *
 	 * This function is currently empty and can be extended in the future
 	 * to include login-related features or hooks.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */

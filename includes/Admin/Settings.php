@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is responsible for setting default options in the WordPress installation.
  * It includes methods to run the settings and set various default options.
@@ -21,6 +20,13 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+/**
+ * Class Settings
+ *
+ * Handles Settings functionality for the plugin.
+ *
+ * @since 1.0.0
+ */
 class Settings {
 
 
@@ -35,7 +41,7 @@ class Settings {
 	 * @return void
 	 */
 	public function run(): void {
-		add_action( 'admin_init', array( static::class, 'set_defaults' ) );
+		add_action( 'admin_init', [ static::class, 'set_defaults' ] );
 	}
 
 
@@ -51,7 +57,7 @@ class Settings {
 	 * @return void
 	 */
 	public static function set_defaults(): void {
-		$options = array(
+		$options = [
 			'avatar_default'         => 'blank',
 			'comment_max_links'      => 0,
 			'comments_per_page'      => 0,
@@ -59,20 +65,18 @@ class Settings {
 			'default_post_edit_rows' => 50,
 			'permalink_structure'    => '/%postname%/',
 			'use_smilies'            => 0,
-		);
+		];
 
 		foreach ( $options as $key => $value ) {
 			update_option( $key, $value );
 		}
 
-		$posts = array( 1, 2, 3 );
+		$posts = [ 1, 2, 3 ];
 
 		foreach ( $posts as $id ) {
 			wp_delete_post( $id, true );
 		}
 
 		wp_delete_comment( 1 );
-
-		return;
 	}
 }

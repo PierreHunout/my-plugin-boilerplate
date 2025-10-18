@@ -5,24 +5,24 @@
  * @package MyPluginBoilerplate
  */
 
-// Prevent direct access
+// Prevent direct access.
 if ( ! defined( 'PHPUNIT_COMPOSER_INSTALL' ) && ! defined( 'PHPUNIT_TESTSUITE' ) ) {
 	die( 'This file should only be accessed during PHPUnit testing.' );
 }
 
-// Define plugin constants for testing
+// Define plugin constants for testing.
 if ( ! defined( 'MY_PLUGIN_BOILERPLATE_TESTING' ) ) {
 	define( 'MY_PLUGIN_BOILERPLATE_TESTING', true );
 }
 
-// Load Composer autoloader
+// Load Composer autoloader.
 if ( file_exists( dirname( __DIR__ ) . '/vendor/autoload.php' ) ) {
 	require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 } else {
 	die( 'Composer autoloader not found. Please run "composer install".' );
 }
 
-// Set up test environment constants first
+// Set up test environment constants first.
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', '/tmp/wordpress/' );
 }
@@ -35,12 +35,12 @@ if ( ! defined( 'WP_PLUGIN_DIR' ) ) {
 	define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/plugins' );
 }
 
-// Initialize test hooks system for unit tests
+// Initialize test hooks system for unit tests.
 global $test_filters, $test_actions;
 $test_filters = [];
 $test_actions = [];
 
-// Add mock function for tests_add_filter
+// Add mock function for tests_add_filter.
 if ( ! function_exists( 'tests_add_filter' ) ) {
 	function tests_add_filter( $tag, $function_to_add, $priority = 10, $accepted_args = 1 ) {
 		global $test_filters;
@@ -59,15 +59,15 @@ if ( ! function_exists( 'tests_add_filter' ) ) {
 	}
 }
 
-// Load WordPress test environment (if available)
+// Load WordPress test environment (if available).
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 
-// If WP_TESTS_DIR is not set, try to find it
+// If WP_TESTS_DIR is not set, try to find it.
 if ( ! $_tests_dir ) {
 	$_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
 }
 
-// Check if WordPress test suite is available
+// Check if WordPress test suite is available.
 if ( file_exists( $_tests_dir . '/includes/functions.php' ) ) {
 	// Load WordPress test functions
 	require_once $_tests_dir . '/includes/functions.php';
@@ -140,7 +140,7 @@ if ( file_exists( $_tests_dir . '/includes/functions.php' ) ) {
 		// Additional WordPress functions commonly used in plugins
 		if ( ! function_exists( 'wp_die' ) ) {
 			function wp_die( $message = '', $title = '', $args = [] ) {
-				throw new Exception( $message );
+				throw new Exception( esc_html( $message ) );
 			}
 		}
 		
@@ -184,14 +184,14 @@ if ( file_exists( $_tests_dir . '/includes/functions.php' ) ) {
 		try {
 			require_once dirname( __DIR__ ) . '/my-plugin-boilerplate.php';
 		} catch ( Exception $e ) {
-			echo "Warning: Could not load main plugin file: " . $e->getMessage() . "\n";
+			echo "Warning: Could not load main plugin file: " . esc_html( $e->getMessage() ) . "\n";
 		}
 	}
 }
 
 echo "PHPUnit Bootstrap loaded successfully.\n";
 
-// Helper function to apply test filters (for unit tests)
+// Helper function to apply test filters (for unit tests).
 if ( ! function_exists( 'apply_test_filters' ) ) {
 	function apply_test_filters( $tag, $value = '', ...$args ) {
 		global $test_filters;
@@ -210,7 +210,7 @@ if ( ! function_exists( 'apply_test_filters' ) ) {
 	}
 }
 
-// Helper function to check if a filter exists
+// Helper function to check if a filter exists.
 if ( ! function_exists( 'has_filter' ) ) {
 	function has_filter( $tag, $function_to_check = false ) {
 		global $test_filters;

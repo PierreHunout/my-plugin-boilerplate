@@ -14,5 +14,5 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
-// Plugin-specific constants
+// Plugin-specific constants.
 define( 'MY_PLUGIN_BOILERPLATE_UNINSTALL', true );
