@@ -52,16 +52,6 @@
     </rule>
 
     <!-- Customizations -->
-    
-    <!-- Allow short array syntax -->
-    <rule ref="Generic.Arrays.DisallowShortArraySyntax.Found">
-        <severity>0</severity>
-    </rule>
-
-    <!-- Allow long array syntax too (mixed is OK) -->
-    <rule ref="Generic.Arrays.DisallowLongArraySyntax.Found">
-        <severity>0</severity>
-    </rule>
 
     <!-- Increase line length limit -->
     <rule ref="Generic.Files.LineLength">
@@ -94,4 +84,21 @@
         <severity>0</severity>
     </rule>
 
+    <!-- Allow non-hyphenated lowercase file names -->
+    <rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow inline comments to end with any character -->
+    <rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow short array syntax [] instead of array() -->
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+    
+    <!-- Disable conflicting rule that disallows short array syntax -->
+    <rule ref="Universal.Arrays.DisallowShortArraySyntax">
+        <severity>0</severity>
+    </rule>
 </ruleset>

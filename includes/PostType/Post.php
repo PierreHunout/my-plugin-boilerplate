@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is responsible for handling the post functionality in the WordPress plugin.
  * It includes methods to run the post functionality and can be extended in the future.
@@ -21,6 +20,13 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+/**
+ * Class Post
+ *
+ * Handles Post functionality for the plugin.
+ *
+ * @since 1.0.0
+ */
 class Post {
 
 	/**
@@ -28,6 +34,8 @@ class Post {
 	 *
 	 * This function is currently empty and can be extended in the future
 	 * to include post-related features or hooks.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */

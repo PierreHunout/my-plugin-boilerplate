@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Displays admin notices for the plugin.
  *
@@ -20,6 +19,13 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+/**
+ * Class Notices
+ *
+ * Handles Notices functionality for the plugin.
+ *
+ * @since 1.0.0
+ */
 class Notices {
 
 
@@ -32,7 +38,7 @@ class Notices {
 	 */
 	public static function run(): void {
 		// Display admin notices
-		add_action( 'admin_notices', array( self::class, 'display_notices' ) );
+		add_action( 'admin_notices', [ self::class, 'display_notices' ] );
 	}
 
 	/**
@@ -93,7 +99,7 @@ class Notices {
 						$message = $image['message'];
 						$classes = $image['classes'];
 
-						$class_list = array();
+						$class_list = [];
 						foreach ( $classes as $class ) {
 							$class        = 'my-plugin-boilerplate__message--' . sanitize_html_class( $class );
 							$class_list[] = $class;
@@ -101,7 +107,7 @@ class Notices {
 
 						$classes = implode( ' ', $class_list );
 
-						$allowed_html = array( 'span' => array() );
+						$allowed_html = [ 'span' => [] ];
 						echo '<li class="my-plugin-boilerplate__message ' . esc_attr( $classes ) . '">' . wp_kses( $message, $allowed_html ) . '</li>';
 					}
 

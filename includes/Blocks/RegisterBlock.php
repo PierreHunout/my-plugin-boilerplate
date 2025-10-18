@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is responsible for handling the block registration functionality in the WordPress plugin.
  * It automatically discovers and registers all WordPress blocks found in the src/ directory.
@@ -13,6 +12,7 @@ namespace MyPluginBoilerplate\Blocks;
 
 use MyPluginBoilerplate\MyPluginBoilerplate;
 use MyPluginBoilerplate\Helpers;
+use MyPluginBoilerplate\Debug\Log;
 use InvalidArgumentException;
 use RuntimeException;
 use Throwable;
@@ -27,6 +27,13 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+/**
+ * Class RegisterBlock
+ *
+ * Handles RegisterBlock functionality for the plugin.
+ *
+ * @since 1.0.0
+ */
 class RegisterBlock {
 
 	/**
@@ -43,13 +50,15 @@ class RegisterBlock {
 	 * Hooks into WordPress 'init' action to register all blocks
 	 * found in the src/ directory automatically.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @return void
 	 */
 	public function run(): void {
 		// Ensure slug is assigned from main plugin class at runtime
 		self::$slug = MyPluginBoilerplate::$slug;
 
-		add_action( 'init', array( self::class, 'register_blocks' ) );
+		add_action( 'init', [ self::class, 'register_blocks' ] );
 	}
 
 	/**
@@ -57,6 +66,11 @@ class RegisterBlock {
 	 *
 	 * Automatically discovers and registers all blocks found in the build/ directory
 	 * by scanning for block.json files in subdirectories.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @throws RuntimeException If the filesystem cannot be initialized or build directory is missing.
+	 * @throws InvalidArgumentException If a block directory is invalid or unreadable.
 	 *
 	 * @return void
 	 */
@@ -102,48 +116,24 @@ class RegisterBlock {
 					// Register the block using the directory (WordPress will automatically read block.json)
 					$result = register_block_type( $dir );
 
-					if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
-						if ( $result instanceof \WP_Block_Type ) {
-							error_log( sprintf( '[%1$s] Successfully registered block: %2$s', self::$slug, $dir ) );
-						} else {
-							error_log( sprintf( '[%1$s] Failed to register block: %2$s', self::$slug, $dir ) );
-						}
+					if ( $result instanceof \WP_Block_Type ) {
+						Log::log( 'RegisterBlock', sprintf( 'Successfully registered block: %s', $dir ) );
+					} else {
+						Log::log( 'RegisterBlock', sprintf( 'Failed to register block: %s', $dir ) );
 					}
 				} catch ( Throwable $e ) {
 					// Log individual block registration errors
-					if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
-						error_log(
-							sprintf(
-								'[%1$s] Error registering block from %2$s: %3$s in %4$s on line %5$d',
-								self::$slug,
-								$dir,
-								$e->getMessage(),
-								basename( $e->getFile() ),
-								$e->getLine()
-							)
-						);
-					}
+					Log::log( 'RegisterBlock', sprintf( 'Error registering block from %s: %s in %s on line %d', $dir, $e->getMessage(), basename( $e->getFile() ), $e->getLine() ) );
+
 					// Continue with next block instead of stopping entirely
 					continue;
 				}
 			}
 
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
-				error_log( sprintf( '[%1$s] Total blocks found and processed: %2$d', self::$slug, count( $blocks ) ) );
-			}
+			Log::log( 'RegisterBlock', sprintf( 'Total blocks found and processed: %d', count( $blocks ) ) );
 		} catch ( Throwable $error ) {
 			// Log general errors
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
-				error_log(
-					sprintf(
-						'[%1$s] Error in register_blocks(): %2$s in %3$s on line %4$d',
-						self::$slug,
-						$error->getMessage(),
-						basename( $error->getFile() ),
-						$error->getLine()
-					)
-				);
-			}
+			Log::log( 'RegisterBlock', sprintf( 'Error in register_blocks(): %s in %s on line %d', $error->getMessage(), basename( $error->getFile() ), $error->getLine() ) );
 		}
 	}
 
@@ -154,10 +144,14 @@ class RegisterBlock {
 	 *
 	 * @param string              $directory The directory to search in.
 	 * @param \WP_Filesystem_Base $filesystem The WordPress filesystem instance.
+	 *
+	 * @throws InvalidArgumentException If the directory parameter is empty.
+	 * @throws RuntimeException If the directory does not exist or is not readable.
+	 *
 	 * @return array Array of subdirectory paths.
 	 */
 	private static function get_blocks( string $directory, $filesystem ): array {
-		$dirs = array();
+		$dirs = [];
 
 		try {
 			// Validate directory parameter
@@ -179,18 +173,7 @@ class RegisterBlock {
 			$dirs = self::get_blocks_json( $directory, $filesystem );
 		} catch ( Throwable $error ) {
 			// Log directory scanning errors
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
-				error_log(
-					sprintf(
-						'[%1$s] Error scanning directory %2$s: %3$s in %4$s on line %5$d',
-						self::$slug,
-						$directory,
-						$error->getMessage(),
-						basename( $error->getFile() ),
-						$error->getLine()
-					)
-				);
-			}
+			Log::log( 'RegisterBlock', sprintf( 'Error scanning directory %s: %s in %s on line %d', $directory, $error->getMessage(), basename( $error->getFile() ), $error->getLine() ) );
 		}
 
 		return $dirs;
@@ -199,12 +182,17 @@ class RegisterBlock {
 	/**
 	 * Recursively scans directories for block.json files using WP_Filesystem.
 	 *
+	 * @since 1.0.0
+	 *
 	 * @param string              $directory The directory to scan.
 	 * @param \WP_Filesystem_Base $filesystem The WordPress filesystem instance.
+	 *
+	 * @throws Throwable For any errors encountered during directory scanning.
+	 *
 	 * @return array Array of block.json file paths.
 	 */
 	private static function get_blocks_json( string $directory, $filesystem ): array {
-		$blocks = array();
+		$blocks = [];
 
 		try {
 			// Get directory listing using WP_Filesystem
@@ -226,37 +214,20 @@ class RegisterBlock {
 						// It's a block.json file
 						if ( $filesystem->is_readable( $path ) ) {
 							$blocks[] = $path;
-						} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
-								error_log( sprintf( '[%s] Block file not readable: %s', self::$slug, $path ) );
+						} else {
+							Log::log( 'RegisterBlock', sprintf( 'Block file not readable: %s', $path ) );
 						}
 					}
 				} catch ( Throwable $e ) {
 					// Log file-specific errors but continue processing
-					if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
-						error_log(
-							sprintf(
-								'[%s] Error processing %s: %s',
-								self::$slug,
-								$path,
-								$e->getMessage()
-							)
-						);
-					}
+					Log::log( 'RegisterBlock', sprintf( 'Error processing %s: %s', $path, $e->getMessage() ) );
+
 					continue;
 				}
 			}
 		} catch ( Throwable $error ) {
 			// Log scanning errors
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
-				error_log(
-					sprintf(
-						'[%s] Error scanning directory %s: %s',
-						self::$slug,
-						$directory,
-						$error->getMessage()
-					)
-				);
-			}
+			Log::log( 'RegisterBlock', sprintf( 'Error scanning directory %s: %s', $directory, $error->getMessage() ) );
 		}
 
 		return $blocks;

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Manages the options page and admin actions for your plugin.
  *
@@ -20,6 +19,13 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+/**
+ * Class Options
+ *
+ * Handles Options functionality for the plugin.
+ *
+ * @since 1.0.0
+ */
 class Options {
 
 
@@ -31,8 +37,8 @@ class Options {
 	 * @return void
 	 */
 	public static function run(): void {
-		add_action( 'admin_menu', array( self::class, 'add_options' ) );
-		add_action( 'admin_init', array( self::class, 'save_options' ) );
+		add_action( 'admin_menu', [ self::class, 'add_options' ] );
+		add_action( 'admin_init', [ self::class, 'save_options' ] );
 	}
 
 	/**
@@ -53,7 +59,7 @@ class Options {
 			__( 'My plugin', 'my-plugin-boilerplate' ),
 			'manage_options',
 			MY_PLUGIN_BOILERPLATE_SLUG,
-			array( self::class, 'render_page' ),
+			[ self::class, 'render_page' ],
 			'dashicons-admin-generic',
 			99
 		);

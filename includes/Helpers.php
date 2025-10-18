@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is responsible for handling the tools functionality in the WordPress plugin.
  * It includes methods to fetch data from a JSON URL and retrieve specific objects from the JSON response
@@ -22,6 +21,13 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+/**
+ * Class Helpers
+ *
+ * Handles Helpers functionality for the plugin.
+ *
+ * @since 1.0.0
+ */
 class Helpers {
 
 

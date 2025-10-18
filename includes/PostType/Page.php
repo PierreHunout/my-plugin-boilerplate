@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is responsible for handling the page functionality in the WordPress plugin.
  * It includes methods to run the page functionality and can be extended in the future.
@@ -21,6 +20,13 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+/**
+ * Class Page
+ *
+ * Handles Page functionality for the plugin.
+ *
+ * @since 1.0.0
+ */
 class Page {
 
 	/**
@@ -28,6 +34,8 @@ class Page {
 	 *
 	 * This function is currently empty and can be extended in the future
 	 * to include page-related features or hooks.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
