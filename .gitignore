@@ -1,3 +1,21 @@
 composer.lock
-/vendor
 *.log
+
+# Node
+/node_modules/
+
+# Composer
+/vendor/
+
+# PHPCS local configuration
+phpcs.xml
+
+# PHPUnit local configuration and generated files
+phpunit.xml
+.phpunit.cache/
+/tests/coverage-html/
+/tests/coverage.txt
+/tests/coverage.xml
+/tests/logs/*.xml
+
+.DS_Store

@@ -1,0 +1,19 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "my-plugin-boilerplate/static-block",
+	"version": "1.0.0",
+	"title": "Static Block Example",
+	"category": "widgets",
+	"icon": "list-view",
+	"description": "Example block scaffolded.",
+	"example": {},
+	"supports": {
+		"html": false
+	},
+	"textdomain": "my-plugin-boilerplate",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"viewScript": "file:./view.js"
+}
