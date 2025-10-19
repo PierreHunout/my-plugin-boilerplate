@@ -1,0 +1,234 @@
+/**
+ * Admin Settings Styles - BEM Methodology
+ *
+ * Block: plugin-config
+ * Elements: title, navigation, tab, form, content, submit, actions, info, notice
+ * Modifiers: active, success, error
+ *
+ * @package MyPluginBoilerplate
+ * @since 1.0.0
+ */
+
+/* ==========================================================================
+   PLUGIN CONFIG BLOCK
+   ========================================================================== */
+
+.plugin-config {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+/* Plugin Config Title
+   ========================================================================== */
+
+.plugin-config__title {
+	margin-bottom: 20px;
+	font-size: 23px;
+	font-weight: 400;
+	line-height: 1.3;
+}
+
+/* Plugin Config Navigation
+   ========================================================================== */
+
+.plugin-config__navigation {
+	margin-bottom: 20px;
+	border-bottom: 1px solid #ccd0d4;
+}
+
+.plugin-config__tab {
+	position: relative;
+	display: inline-block;
+	padding: 10px 15px;
+	margin: 0 5px -1px 0;
+	background: #f1f1f1;
+	border: 1px solid #ccd0d4;
+	color: #0073aa;
+	text-decoration: none;
+	transition: all 0.2s ease;
+}
+
+.plugin-config__tab:hover {
+	background: #fafafa;
+	color: #005177;
+}
+
+.plugin-config__tab--active {
+	background: #fff;
+	border-bottom-color: #fff;
+	color: #000;
+	font-weight: 600;
+}
+
+.plugin-config__tab--active:hover {
+	background: #fff;
+	color: #000;
+}
+
+/* Plugin Config Form
+   ========================================================================== */
+
+.plugin-config__form {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	margin-bottom: 20px;
+}
+
+.plugin-config__content {
+	padding: 20px;
+}
+
+.plugin-config__submit {
+	margin: 0 20px 20px;
+}
+
+/* Plugin Config Actions
+   ========================================================================== */
+
+.plugin-config__actions {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+.plugin-config__actions-title {
+	margin: 0 0 10px;
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.plugin-config__actions-description {
+	margin-bottom: 15px;
+	color: #646970;
+}
+
+.plugin-config__actions-controls {
+	margin: 0;
+}
+
+.plugin-config__reset-button {
+	color: #b32d2e;
+	border-color: #b32d2e;
+}
+
+.plugin-config__reset-button:hover {
+	background: #b32d2e;
+	border-color: #b32d2e;
+	color: #fff;
+}
+
+/* Plugin Config Info
+   ========================================================================== */
+
+.plugin-config__info {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+.plugin-config__info-title {
+	margin: 0 0 10px;
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.plugin-config__info-description {
+	margin-bottom: 15px;
+	color: #646970;
+}
+
+.plugin-config__info-debug {
+	margin: 0;
+	padding: 10px;
+	background: #fff3cd;
+	border: 1px solid #ffeaa7;
+	border-radius: 4px;
+	color: #856404;
+}
+
+.plugin-config__debug-label {
+	font-weight: 600;
+	margin-right: 5px;
+}
+
+.plugin-config__debug-text {
+	font-weight: normal;
+}
+
+/* Plugin Config Notices
+   ========================================================================== */
+
+.plugin-config__notice {
+	margin: 5px 0 15px;
+	padding: 1px 12px;
+}
+
+.plugin-config__notice--success {
+	border-left-color: #00a32a;
+}
+
+.plugin-config__notice--error {
+	border-left-color: #d63638;
+}
+
+.plugin-config__notice-text {
+	margin: 0.5em 0;
+	padding: 2px;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+
+@media screen and (max-width: 782px) {
+	.plugin-config__tab {
+		display: block;
+		margin: 0 0 5px;
+		width: 100%;
+		text-align: center;
+	}
+	
+	.plugin-config__content {
+		padding: 15px;
+	}
+	
+	.plugin-config__actions,
+	.plugin-config__info {
+		padding: 15px;
+	}
+}
+
+/* ==========================================================================
+   DARK MODE SUPPORT
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+	.plugin-config__form,
+	.plugin-config__actions,
+	.plugin-config__info {
+		background: #1d2327;
+		border-color: #3c434a;
+	}
+	
+	.plugin-config__tab {
+		background: #2c3338;
+		border-color: #3c434a;
+		color: #2271b1;
+	}
+	
+	.plugin-config__tab--active {
+		background: #1d2327;
+		color: #f0f0f1;
+	}
+	
+	.plugin-config__info-debug {
+		background: #393300;
+		border-color: #5a4a00;
+		color: #f0d000;
+	}
+}
