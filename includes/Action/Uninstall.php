@@ -9,11 +9,10 @@
 
 namespace MyPluginBoilerplate\Action;
 
-use WP_Roles;
+use MyPluginBoilerplate\Utils;
+use MyPluginBoilerplate\Utils\Debug;
 use RuntimeException;
 use Throwable;
-use MyPluginBoilerplate\Helpers;
-use MyPluginBoilerplate\Debug\Log;
 
 /**
  * This check prevents direct access to the plugin file,
@@ -32,9 +31,32 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @since 1.0.0
  */
-class Uninstall {
+final class Uninstall {
 
+	/**
+	 * Prevent instantiation of the Uninstall class
+	 *
+	 * @since 1.0.0
+	 */
+	private function __construct() {}
 
+	/**
+	 * Prevent cloning of the Uninstall class
+	 *
+	 * @since 1.0.0
+	 */
+	private function __clone() {}
+
+	/**
+	 * Prevent unserialization of the Uninstall class
+	 *
+	 * @since 1.0.0
+	 *
+	 * @throws \RuntimeException Always throws exception to prevent unserialization.
+	 */
+	public function __wakeup() {
+		throw new RuntimeException( 'Cannot unserialize a singleton.' );
+	}
 
 	/**
 	 * Class Runner for the uninstall functionality.
@@ -73,7 +95,7 @@ class Uninstall {
 	 *
 	 * @return void
 	 */
-	public static function options(): void {
+	private static function options(): void {
 		// List of plugin options to remove
 		$options_to_remove = [
 			'my_plugin_boilerplate_text',
@@ -107,7 +129,7 @@ class Uninstall {
 	 *
 	 * @return void
 	 */
-	public static function user_meta(): void {
+	private static function user_meta(): void {
 		// Get all users and remove plugin-specific meta data using WordPress functions
 		$users = get_users( [ 'fields' => 'ID' ] );
 
@@ -134,7 +156,7 @@ class Uninstall {
 	 *
 	 * @return void
 	 */
-	public static function transients(): void {
+	private static function transients(): void {
 		global $wpdb;
 
 		if ( defined( 'WP_UNINSTALL_PLUGIN' ) ) {
@@ -173,7 +195,7 @@ class Uninstall {
 	 *
 	 * @return void
 	 */
-	public static function custom_tables(): void {
+	private static function custom_tables(): void {
 		// Only remove custom tables during actual plugin uninstall
 		if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 			return;
@@ -208,13 +230,13 @@ class Uninstall {
 	 *
 	 * @return void
 	 */
-	public static function files(): void {
+	private static function files(): void {
 		$upload_dir         = wp_upload_dir();
 		$plugin_upload_path = $upload_dir['basedir'] . '/my-plugin-boilerplate';
 
 		try {
 			// Initialize WordPress filesystem
-			$filesystem = Helpers::get_filesystem();
+			$filesystem = Utils::get_filesystem();
 
 			if ( ! $filesystem ) {
 				throw new RuntimeException( 'Failed to initialize WordPress filesystem' );
@@ -228,7 +250,7 @@ class Uninstall {
 			self::remove_directory( $plugin_upload_path );
 		} catch ( Throwable $e ) {
 			// Log the error for debugging during uninstall
-			Log::log(
+			Debug::log(
 				'uninstall_files_error',
 				[
 					'message' => $e->getMessage(),
@@ -252,10 +274,10 @@ class Uninstall {
 	 *
 	 * @return void
 	 */
-	public static function remove_directory( $dir ): void {
+	private static function remove_directory( $dir ): void {
 		try {
 			// Initialize WordPress filesystem
-			$filesystem = Helpers::get_filesystem();
+			$filesystem = Utils::get_filesystem();
 
 			if ( ! $filesystem ) {
 				throw new RuntimeException( 'Failed to initialize WordPress filesystem' );
@@ -281,7 +303,7 @@ class Uninstall {
 			$filesystem->rmdir( $dir );
 		} catch ( \Throwable $e ) {
 			// Log the error for debugging during uninstall
-			Log::log(
+			Debug::log(
 				'uninstall_directory_error',
 				[
 					'directory' => $dir,
@@ -304,7 +326,7 @@ class Uninstall {
 	 *
 	 * @return void
 	 */
-	public static function cron(): void {
+	private static function cron(): void {
 		// Remove scheduled hooks
 		$cron_hooks = [
 			'my_plugin_boilerplate_daily_cleanup',
@@ -326,7 +348,7 @@ class Uninstall {
 	 *
 	 * @return void
 	 */
-	public static function capabilities(): void {
+	private static function capabilities(): void {
 		// Use wp_roles() function instead of global variable
 		if ( ! function_exists( 'wp_roles' ) ) {
 			return;

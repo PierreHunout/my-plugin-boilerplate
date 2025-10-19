@@ -1,17 +1,17 @@
 <?php
 /**
- * This file is responsible for handling the logging functionality in the WordPress plugin.
- * It includes methods to run the logging functionality and can be extended in the future.
+ * This file is responsible for handling the debugging functionality in the WordPress plugin.
  *
  * @package MyPluginBoilerplate
  *
  * @since 1.0.0
  */
 
-namespace MyPluginBoilerplate\Debug;
+namespace MyPluginBoilerplate\Utils;
 
 use MyPluginBoilerplate\MyPluginBoilerplate;
-use MyPluginBoilerplate\Helpers;
+use MyPluginBoilerplate\Config\Config;
+use MyPluginBoilerplate\Utils;
 use DateTime;
 use DateTimeZone;
 
@@ -26,13 +26,38 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 /**
- * Class Log
+ * Class Debug
  *
- * Handles Log functionality for the plugin.
+ * Handles Debug functionality for the plugin.
  *
  * @since 1.0.0
  */
-class Log {
+class Debug {
+
+	/**
+	 * Prevent instantiation of the Debug class
+	 *
+	 * @since 1.0.0
+	 */
+	private function __construct() {}
+
+	/**
+	 * Prevent cloning of the Debug class
+	 *
+	 * @since 1.0.0
+	 */
+	private function __clone() {}
+
+	/**
+	 * Prevent unserialization of the Debug class
+	 *
+	 * @since 1.0.0
+	 *
+	 * @throws \RuntimeException Always throws exception to prevent unserialization.
+	 */
+	public function __wakeup() {
+		throw new \RuntimeException( 'Cannot unserialize a singleton.' );
+	}
 
 	/**
 	 * Logs data to a specified file.
@@ -45,9 +70,9 @@ class Log {
 	 *
 	 * @return void
 	 */
-	public static function log( $file, $data ) {
-		// Only log when MY_PLUGIN_BOILERPLATE_DEBUG is enabled.
-		if ( ! defined( 'MY_PLUGIN_BOILERPLATE_DEBUG' ) || ! MY_PLUGIN_BOILERPLATE_DEBUG ) {
+	public static function log( $file, $data ): void {
+		// Only log when debug is enabled via configuration.
+		if ( ! Config::get( 'debug.enabled', false ) ) {
 			return;
 		}
 
@@ -55,7 +80,7 @@ class Log {
 		$slug = MyPluginBoilerplate::$slug;
 		$path = WP_CONTENT_DIR . $slug . '/-logs/';
 
-		$filesystem = Helpers::get_filesystem();
+		$filesystem = Utils::get_filesystem();
 
 		if ( ! $filesystem->is_dir( $path ) ) {
 			$filesystem->mkdir( $path, 0755 );
@@ -99,9 +124,9 @@ class Log {
 	 *
 	 * @return void
 	 */
-	public static function print( $data, $stop = false ) {
-		// Only output debug information when MY_PLUGIN_BOILERPLATE_DEBUG is enabled.
-		if ( ! defined( 'MY_PLUGIN_BOILERPLATE_DEBUG' ) || ! MY_PLUGIN_BOILERPLATE_DEBUG ) {
+	public static function print( $data, $stop = false ): void {
+		// Only output debug information when debug is enabled via configuration.
+		if ( ! Config::get( 'debug.enabled', false ) ) {
 			return;
 		}
 

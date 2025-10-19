@@ -37,14 +37,13 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 /**
- * Define plugin constants for version, file, path, slug, CSS, JS, and debug mode.
+ * Define plugin constants for version, file, path, slug, CSS, JS.
  *
  * @since 1.0.0
  */
 define( 'MY_PLUGIN_BOILERPLATE_VERSION', '1.0.0' );
 define( 'MY_PLUGIN_BOILERPLATE_NAME', 'My Plugin Boilerplate' );
 define( 'MY_PLUGIN_BOILERPLATE_NAMESPACE', 'MyPluginBoilerplate' );
-define( 'MY_PLUGIN_BOILERPLATE_DEBUG', true );
 define( 'MY_PLUGIN_BOILERPLATE_FILE', __FILE__ );
 define( 'MY_PLUGIN_BOILERPLATE_PATH', plugin_dir_path( MY_PLUGIN_BOILERPLATE_FILE ) );
 define( 'MY_PLUGIN_BOILERPLATE_BASENAME', plugin_basename( MY_PLUGIN_BOILERPLATE_FILE ) );
@@ -55,8 +54,8 @@ define( 'MY_PLUGIN_BOILERPLATE_JS', plugins_url( 'assets/js/', __FILE__ ) );
 /**
  * If you don't want to use the autoloading feature, you can comment the following line.
  *
- * It will include the autoload.php file from the lib directory.
- * Make sure that the autoload.php file exists in the lib directory.
+ * It will include the autoload.php file from the vendor directory.
+ * Make sure that the autoload.php file exists in the vendor directory.
  */
 if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 	require_once __DIR__ . '/vendor/autoload.php';
@@ -69,7 +68,7 @@ if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
  *
  * @since 1.0.0
  */
-class MyPluginBoilerplate {
+final class MyPluginBoilerplate {
 
 	/**
 	 * This variable is used to implement the Singleton pattern,
@@ -79,7 +78,7 @@ class MyPluginBoilerplate {
 	 *
 	 * @var MyPluginBoilerplate|null $instance The single instance of the class.
 	 */
-	private static ?MyPluginBoilerplate $instance = null;
+	protected static ?MyPluginBoilerplate $instance = null;
 
 	/**
 	 * The name of the plugin.
@@ -109,6 +108,33 @@ class MyPluginBoilerplate {
 	public static string $namespace = 'MyPluginBoilerplate';
 
 	/**
+	 * Private constructor to prevent direct instantiation.
+	 *
+	 * @since 1.0.0
+	 */
+	private function __construct() {
+		$this->init();
+	}
+
+	/**
+	 * Prevent cloning of the class
+	 *
+	 * @since 1.0.0
+	 */
+	private function __clone() {}
+
+	/**
+	 * Prevent unserialization of the class
+	 *
+	 * @since 1.0.0
+	 *
+	 * @throws RuntimeException Always throws exception to prevent unserialization.
+	 */
+	public function __wakeup() {
+		throw new RuntimeException( 'Cannot unserialize a singleton.' );
+	}
+
+	/**
 	 * Get the instance of the MyPluginBoilerplate class.
 	 *
 	 * This method implements the Singleton pattern to ensure that only one instance of the class exists.
@@ -135,8 +161,8 @@ class MyPluginBoilerplate {
 	 * @return void
 	 */
 	public function init(): void {
-		self::run_enqueue();
-		self::run_files();
+		self::init_enqueue();
+		self::autoload();
 
 		// Register hooks for deactivation and uninstall.
 		register_deactivation_hook( __FILE__, [ '\MyPluginBoilerplate\Action\Deactivate', 'deactivate' ] );
@@ -149,7 +175,7 @@ class MyPluginBoilerplate {
 	 * This method scans the 'includes' directory for subdirectories,
 	 * and then scans each subdirectory for PHP files.
 	 * It instantiates each class found in the files
-	 * and calls its `run` method.
+	 * and calls its `init` method.
 	 *
 	 * @since 1.0.0
 	 *
@@ -157,58 +183,86 @@ class MyPluginBoilerplate {
 	 *
 	 * @return void
 	 */
-	public static function run_files(): void {
+	public static function autoload(): void {
 		try {
-			$path = MY_PLUGIN_BOILERPLATE_PATH . 'includes/';
+			$base_path = (string) MY_PLUGIN_BOILERPLATE_PATH . 'includes/';
 
 			// Check if the includes directory exists.
-			if ( ! is_dir( $path ) ) {
+			if ( ! is_dir( $base_path ) ) {
 				// translators: %s is the folder path.
-				throw new RuntimeException( sprintf( __( 'The folder at %s does not exist', 'my-plugin-boilerplate' ), $path ) );
+				throw new RuntimeException( sprintf( __( 'The folder at %s does not exist', 'my-plugin-boilerplate' ), $base_path ) );
+			}
+
+			// Normalize the base path for security checks.
+			$normalized_base = (string) realpath( $base_path );
+			if ( false === $normalized_base ) {
+				throw new RuntimeException( __( 'Unable to resolve includes directory path', 'my-plugin-boilerplate' ) );
 			}
 
 			// Get all subdirectories in the includes folder.
-			$directories = array_diff( scandir( $path ), [ '.', '..' ] );
+			$directories = (array) array_diff( scandir( $base_path ), [ '.', '..' ] );
 
 			foreach ( $directories as $directory ) {
-				if ( ! preg_match( '/^[a-zA-Z0-9_-]+$/', $directory ) ) {
-					continue;
-				}
-
-				$dir = $path . $directory;
+				$dir = (string) $base_path . $directory;
 
 				// Only process if it's a directory.
 				if ( ! is_dir( $dir ) ) {
 					continue;
 				}
 
+				// Security check: ensure we're still within the plugin directory.
+				$normalized_dir = (string) realpath( $dir );
+				if ( false === $normalized_dir || 0 !== strpos( $normalized_dir, $normalized_base ) ) {
+					continue;
+				}
+
 				// Get all files in the subdirectory.
-				$files = array_diff( scandir( $dir ), [ '.', '..' ] );
+				$files = (array) array_diff( scandir( $dir ), [ '.', '..' ] );
 
 				foreach ( $files as $file ) {
-					// Only process files with .php extension.
-					if ( ! preg_match( '/^[a-zA-Z0-9_-]+\.php$/', $file ) ) {
+					// Enhanced validation: only allow proper PHP class files.
+					if ( ! preg_match( '/^[A-Z][a-zA-Z0-9]*\.php$/', $file ) ) {
 						continue;
 					}
 
-					$filepath = $dir . DIRECTORY_SEPARATOR . $file;
+					$filepath = (string) $dir . DIRECTORY_SEPARATOR . $file;
+
+					// Security check: ensure file is within expected directory.
+					$normalized_file = (string) realpath( $filepath );
+					if ( false === $normalized_file || 0 !== strpos( $normalized_file, $normalized_dir ) ) {
+						continue;
+					}
 
 					if ( ! is_readable( $filepath ) ) {
 						continue;
 					}
 
 					// Get the class name based on folder and file name.
-					$name  = basename( $file, '.php' );
-					$class = self::$namespace . '\\' . $directory . '\\' . $name;
+					$name  = (string) basename( $file, '.php' );
+					$class = (string) self::$namespace . '\\' . $directory . '\\' . $name;
 
-					if ( ! class_exists( $class ) || strpos( $class, self::$namespace . '\\' ) !== 0 ) {
+					// Enhanced class validation.
+					if ( ! class_exists( $class ) || 0 !== strpos( $class, self::$namespace . '\\' ) ) {
+						continue;
+					}
+
+					// Check if class is safe to instantiate (avoid utility classes).
+					$reflection = new \ReflectionClass( $class );
+					if ( $reflection->isAbstract() || $reflection->isTrait() || $reflection->isInterface() ) {
+						continue;
+					}
+
+					// Check if constructor is private (utility classes).
+					$constructor = $reflection->getConstructor();
+					if ( null !== $constructor && ! $constructor->isPublic() ) {
 						continue;
 					}
 
 					try {
-						$instance = new $class();
-						if ( method_exists( $instance, 'run' ) ) {
-							$instance->run();
+						$instance = (object) new $class();
+						if ( method_exists( $instance, 'init' ) && is_callable( [ $instance, 'init' ] ) ) {
+							// Call the init method of the class.
+							$instance->init();
 						}
 					} catch ( Throwable $inner_error ) {
 						if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
@@ -235,7 +289,7 @@ class MyPluginBoilerplate {
 				error_log(
 					sprintf(
 						// translators: %1$s is the plugin name, %2$s is the error message, %3$s is the filename, %4$d is the line number.
-						__( '[%1$s] Error in run_files(): %2$s in %3$s on line %4$d', 'my-plugin-boilerplate' ),
+						__( '[%1$s] Error in autoload(): %2$s in %3$s on line %4$d', 'my-plugin-boilerplate' ),
 						self::$name,
 						$error->getMessage(),
 						basename( $error->getFile() ),
@@ -253,10 +307,10 @@ class MyPluginBoilerplate {
 	 *
 	 * @return void
 	 */
-	public static function run_enqueue(): void {
-		add_action( 'admin_enqueue_scripts', [ self::class, 'admin_enqueue' ], 1 );
-		add_action( 'enqueue_scripts', [ self::class, 'frontend_enqueue' ], 1 );
-		add_action( 'enqueue_scripts', [ self::class, 'localize_jquery' ], 1 );
+	public static function init_enqueue(): void {
+		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'admin_enqueue' ], 1 );
+		add_action( 'enqueue_scripts', [ __CLASS__, 'frontend_enqueue' ], 1 );
+		add_action( 'enqueue_scripts', [ __CLASS__, 'localize_jquery' ], 1 );
 	}
 
 	/**
@@ -295,7 +349,7 @@ class MyPluginBoilerplate {
 	 * @return void
 	 */
 	public static function localize_jquery(): void {
-		$parameters = [ 'test' => 'hello world!' ];
+		$parameters = (array) [ 'test' => 'hello world!' ];
 
 		wp_localize_script( self::$slug . '-jquery', 'parameters', $parameters );
 	}
@@ -310,7 +364,6 @@ class MyPluginBoilerplate {
 add_action(
 	'plugin_loaded',
 	function () {
-		$init_plugin = MyPluginBoilerplate::get_instance();
-		$init_plugin->init();
+		return MyPluginBoilerplate::get_instance();
 	}
 );

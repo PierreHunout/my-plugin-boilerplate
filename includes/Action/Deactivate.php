@@ -26,7 +26,32 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @since 1.0.0
  */
-class Deactivate {
+final class Deactivate {
+
+	/**
+	 * Prevent instantiation of the Deactivate class
+	 *
+	 * @since 1.0.0
+	 */
+	private function __construct() {}
+
+	/**
+	 * Prevent cloning of the Deactivate class
+	 *
+	 * @since 1.0.0
+	 */
+	private function __clone() {}
+
+	/**
+	 * Prevent unserialization of the Deactivate class
+	 *
+	 * @since 1.0.0
+	 *
+	 * @throws \RuntimeException Always throws exception to prevent unserialization.
+	 */
+	public function __wakeup() {
+		throw new \RuntimeException( 'Cannot unserialize a singleton.' );
+	}
 
 	/**
 	 * Class Runner for the deactivate functionality.

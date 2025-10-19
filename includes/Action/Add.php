@@ -38,7 +38,7 @@ class Add {
 	 *
 	 * @return void
 	 */
-	public function run(): void {
+	public function init(): void {
 		// Do something here
 	}
 }

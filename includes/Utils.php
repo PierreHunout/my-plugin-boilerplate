@@ -1,8 +1,6 @@
 <?php
 /**
  * This file is responsible for handling the tools functionality in the WordPress plugin.
- * It includes methods to fetch data from a JSON URL and retrieve specific objects from the JSON response
- * and can be extended in the future.
  *
  * @package MyPluginBoilerplate
  *
@@ -22,14 +20,38 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 /**
- * Class Helpers
+ * Class Utils
  *
  * Handles Helpers functionality for the plugin.
  *
  * @since 1.0.0
  */
-class Helpers {
+class Utils {
 
+	/**
+	 * Prevent instantiation of the Helpers class
+	 *
+	 * @since 1.0.0
+	 */
+	private function __construct() {}
+
+	/**
+	 * Prevent cloning of the Helpers class
+	 *
+	 * @since 1.0.0
+	 */
+	private function __clone() {}
+
+	/**
+	 * Prevent unserialization of the Helpers class
+	 *
+	 * @since 1.0.0
+	 *
+	 * @throws \RuntimeException Always throws exception to prevent unserialization.
+	 */
+	public function __wakeup() {
+		throw new \RuntimeException( 'Cannot unserialize a singleton.' );
+	}
 
 	/**
 	 * Initialize the WordPress filesystem.

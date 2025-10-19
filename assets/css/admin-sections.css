@@ -1,0 +1,284 @@
+/**
+ * Admin Sections Styles - BEM Methodology
+ *
+ * Section-specific styles following BEM naming convention:
+ * - debug-section
+ * - performance-section
+ * - security-section
+ * - features-section
+ *
+ * @package MyPluginBoilerplate
+ * @since 1.0.0
+ */
+
+/* ==========================================================================
+   SECTION BASE STYLES
+   ========================================================================== */
+
+.debug-section,
+.performance-section,
+.security-section,
+.features-section {
+	background: #fff;
+	margin-bottom: 20px;
+}
+
+/* Section Descriptions
+   ========================================================================== */
+
+.debug-section__description,
+.performance-section__description,
+.security-section__description,
+.features-section__description {
+	margin-bottom: 20px;
+	padding: 15px 20px;
+	background: #f8f9fa;
+	border-left: 4px solid #0073aa;
+}
+
+.debug-section__description-text,
+.performance-section__description-text,
+.security-section__description-text,
+.features-section__description-text {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.5;
+	color: #646970;
+}
+
+/* Form Tables
+   ========================================================================== */
+
+.debug-section__form-table,
+.performance-section__form-table,
+.security-section__form-table,
+.features-section__form-table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.debug-section__form-body,
+.performance-section__form-body,
+.security-section__form-body,
+.features-section__form-body {
+	background: #fff;
+}
+
+/* Field Rows
+   ========================================================================== */
+
+.debug-section__field-row,
+.performance-section__field-row,
+.security-section__field-row,
+.features-section__field-row {
+	border-bottom: 1px solid #f0f0f1;
+	transition: background-color 0.2s ease;
+}
+
+.debug-section__field-row:hover,
+.performance-section__field-row:hover,
+.security-section__field-row:hover,
+.features-section__field-row:hover {
+	background-color: #fafafa;
+}
+
+.debug-section__field-row:last-child,
+.performance-section__field-row:last-child,
+.security-section__field-row:last-child,
+.features-section__field-row:last-child {
+	border-bottom: none;
+}
+
+/* Field Labels
+   ========================================================================== */
+
+.debug-section__field-label,
+.performance-section__field-label,
+.security-section__field-label,
+.features-section__field-label {
+	width: 220px;
+	padding: 20px 10px 20px 0;
+	font-weight: 600;
+	vertical-align: top;
+	color: #23282d;
+}
+
+/* Field Inputs
+   ========================================================================== */
+
+.debug-section__field-input,
+.performance-section__field-input,
+.security-section__field-input,
+.features-section__field-input {
+	padding: 15px 10px 15px 0;
+	vertical-align: top;
+}
+
+/* ==========================================================================
+   DEBUG SECTION SPECIFIC STYLES
+   ========================================================================== */
+
+.debug-section__description {
+	border-left-color: #d63638;
+}
+
+.debug-section__checkbox,
+.debug-section__select,
+.debug-section__number-input {
+	margin-right: 10px;
+}
+
+.debug-section__number-input {
+	width: 80px;
+}
+
+/* ==========================================================================
+   PERFORMANCE SECTION SPECIFIC STYLES
+   ========================================================================== */
+
+.performance-section__description {
+	border-left-color: #00a32a;
+}
+
+.performance-section__checkbox {
+	margin-right: 10px;
+}
+
+.performance-section__number-input {
+	width: 100px;
+}
+
+/* ==========================================================================
+   SECURITY SECTION SPECIFIC STYLES
+   ========================================================================== */
+
+.security-section__description {
+	border-left-color: #f56e28;
+}
+
+.security-section__checkbox {
+	margin-right: 10px;
+}
+
+.security-section__number-input {
+	width: 100px;
+}
+
+/* ==========================================================================
+   FEATURES SECTION SPECIFIC STYLES
+   ========================================================================== */
+
+.features-section__description {
+	border-left-color: #7c3aed;
+}
+
+.features-section__checkbox {
+	margin-right: 10px;
+}
+
+/* ==========================================================================
+   FIELD ELEMENT STYLES
+   ========================================================================== */
+
+/* Checkboxes */
+.debug-section__checkbox,
+.performance-section__checkbox,
+.security-section__checkbox,
+.features-section__checkbox {
+	transform: scale(1.1);
+	margin-right: 8px;
+}
+
+/* Select Elements */
+.debug-section__select {
+	min-width: 150px;
+	padding: 5px;
+}
+
+/* Number Inputs */
+.debug-section__number-input,
+.performance-section__number-input,
+.security-section__number-input {
+	text-align: center;
+	font-weight: 600;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+
+@media screen and (max-width: 782px) {
+	
+	.debug-section__field-label,
+	.performance-section__field-label,
+	.security-section__field-label,
+	.features-section__field-label {
+		width: 100%;
+		padding: 15px 0 5px;
+		display: block;
+	}
+	
+	.debug-section__field-input,
+	.performance-section__field-input,
+	.security-section__field-input,
+	.features-section__field-input {
+		padding: 5px 0 15px;
+		display: block;
+		width: 100%;
+	}
+	
+	.debug-section__field-row,
+	.performance-section__field-row,
+	.security-section__field-row,
+	.features-section__field-row {
+		display: block;
+	}
+	
+	.debug-section__description,
+	.performance-section__description,
+	.security-section__description,
+	.features-section__description {
+		padding: 10px 15px;
+		margin-left: -15px;
+		margin-right: -15px;
+	}
+}
+
+/* ==========================================================================
+   ACCESSIBILITY STYLES
+   ========================================================================== */
+
+.debug-section__checkbox:focus,
+.performance-section__checkbox:focus,
+.security-section__checkbox:focus,
+.features-section__checkbox:focus,
+.debug-section__select:focus,
+.debug-section__number-input:focus,
+.performance-section__number-input:focus,
+.security-section__number-input:focus {
+	outline: 2px solid #005fcc;
+	outline-offset: 2px;
+	box-shadow: 0 0 0 2px rgba(0, 95, 204, 0.2);
+}
+
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+
+@media print {
+	.debug-section__description,
+	.performance-section__description,
+	.security-section__description,
+	.features-section__description {
+		border-left: 4px solid #000;
+		background: transparent;
+	}
+	
+	.debug-section__field-row,
+	.performance-section__field-row,
+	.security-section__field-row,
+	.features-section__field-row {
+		border-bottom: 1px solid #000;
+		break-inside: avoid;
+	}
+}
