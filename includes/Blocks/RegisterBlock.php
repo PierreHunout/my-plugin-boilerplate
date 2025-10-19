@@ -11,8 +11,8 @@
 namespace MyPluginBoilerplate\Blocks;
 
 use MyPluginBoilerplate\MyPluginBoilerplate;
-use MyPluginBoilerplate\Helpers;
-use MyPluginBoilerplate\Debug\Log;
+use MyPluginBoilerplate\Utils;
+use MyPluginBoilerplate\Utils\Debug;
 use InvalidArgumentException;
 use RuntimeException;
 use Throwable;
@@ -54,11 +54,11 @@ class RegisterBlock {
 	 *
 	 * @return void
 	 */
-	public function run(): void {
+	public function init(): void {
 		// Ensure slug is assigned from main plugin class at runtime
 		self::$slug = MyPluginBoilerplate::$slug;
 
-		add_action( 'init', [ self::class, 'register_blocks' ] );
+		add_action( 'init', [ __CLASS__, 'register_blocks' ] );
 	}
 
 	/**
@@ -77,7 +77,7 @@ class RegisterBlock {
 	public static function register_blocks(): void {
 		try {
 			// Initialize WordPress filesystem
-			$filesystem = Helpers::get_filesystem();
+			$filesystem = Utils::get_filesystem();
 
 			if ( ! $filesystem ) {
 				throw new RuntimeException( 'Failed to initialize WordPress filesystem' );
@@ -117,23 +117,23 @@ class RegisterBlock {
 					$result = register_block_type( $dir );
 
 					if ( $result instanceof \WP_Block_Type ) {
-						Log::log( 'RegisterBlock', sprintf( 'Successfully registered block: %s', $dir ) );
+						Debug::log( 'RegisterBlock', sprintf( 'Successfully registered block: %s', $dir ) );
 					} else {
-						Log::log( 'RegisterBlock', sprintf( 'Failed to register block: %s', $dir ) );
+						Debug::log( 'RegisterBlock', sprintf( 'Failed to register block: %s', $dir ) );
 					}
 				} catch ( Throwable $e ) {
 					// Log individual block registration errors
-					Log::log( 'RegisterBlock', sprintf( 'Error registering block from %s: %s in %s on line %d', $dir, $e->getMessage(), basename( $e->getFile() ), $e->getLine() ) );
+					Debug::log( 'RegisterBlock', sprintf( 'Error registering block from %s: %s in %s on line %d', $dir, $e->getMessage(), basename( $e->getFile() ), $e->getLine() ) );
 
 					// Continue with next block instead of stopping entirely
 					continue;
 				}
 			}
 
-			Log::log( 'RegisterBlock', sprintf( 'Total blocks found and processed: %d', count( $blocks ) ) );
+			Debug::log( 'RegisterBlock', sprintf( 'Total blocks found and processed: %d', count( $blocks ) ) );
 		} catch ( Throwable $error ) {
 			// Log general errors
-			Log::log( 'RegisterBlock', sprintf( 'Error in register_blocks(): %s in %s on line %d', $error->getMessage(), basename( $error->getFile() ), $error->getLine() ) );
+			Debug::log( 'RegisterBlock', sprintf( 'Error in register_blocks(): %s in %s on line %d', $error->getMessage(), basename( $error->getFile() ), $error->getLine() ) );
 		}
 	}
 
@@ -173,7 +173,7 @@ class RegisterBlock {
 			$dirs = self::get_blocks_json( $directory, $filesystem );
 		} catch ( Throwable $error ) {
 			// Log directory scanning errors
-			Log::log( 'RegisterBlock', sprintf( 'Error scanning directory %s: %s in %s on line %d', $directory, $error->getMessage(), basename( $error->getFile() ), $error->getLine() ) );
+			Debug::log( 'RegisterBlock', sprintf( 'Error scanning directory %s: %s in %s on line %d', $directory, $error->getMessage(), basename( $error->getFile() ), $error->getLine() ) );
 		}
 
 		return $dirs;
@@ -215,19 +215,19 @@ class RegisterBlock {
 						if ( $filesystem->is_readable( $path ) ) {
 							$blocks[] = $path;
 						} else {
-							Log::log( 'RegisterBlock', sprintf( 'Block file not readable: %s', $path ) );
+							Debug::log( 'RegisterBlock', sprintf( 'Block file not readable: %s', $path ) );
 						}
 					}
 				} catch ( Throwable $e ) {
 					// Log file-specific errors but continue processing
-					Log::log( 'RegisterBlock', sprintf( 'Error processing %s: %s', $path, $e->getMessage() ) );
+					Debug::log( 'RegisterBlock', sprintf( 'Error processing %s: %s', $path, $e->getMessage() ) );
 
 					continue;
 				}
 			}
 		} catch ( Throwable $error ) {
 			// Log scanning errors
-			Log::log( 'RegisterBlock', sprintf( 'Error scanning directory %s: %s', $directory, $error->getMessage() ) );
+			Debug::log( 'RegisterBlock', sprintf( 'Error scanning directory %s: %s', $directory, $error->getMessage() ) );
 		}
 
 		return $blocks;
