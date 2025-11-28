@@ -45,18 +45,18 @@ This plugin serves as a starting point for developing WordPress plugins with mod
    git clone https://github.com/PierreHunout/my-plugin-boilerplate.git
    ```
 
-2. Install dependencies using Composer and Yarn:
+2. Install dependencies using Composer and npm:
 
    ```bash
    cd my-plugin-boilerplate
    composer install  # PHP dependencies
-   yarn install      # JavaScript dependencies
+   npm install       # JavaScript dependencies
    ```
 
 3. Build the WordPress blocks:
 
    ```bash
-   yarn build
+   npm run build
    ```
 
 4. Activate the plugin through the WordPress admin interface.
@@ -65,15 +65,15 @@ This plugin serves as a starting point for developing WordPress plugins with mod
 
 1. Download the plugin files
 2. Upload the `my-plugin-boilerplate` folder to `/wp-content/plugins/`
-3. Run `composer install` and `yarn install` in the plugin directory
-4. Build blocks with `yarn build`
+3. Run `composer install` and `npm install` in the plugin directory
+4. Build blocks with `npm run build`
 5. Activate the plugin through the 'Plugins' menu in WordPress
 
 ## Requirements
 
 - PHP 7.4 or higher
 - WordPress 5.0 or higher
-- Node.js 14+ and Yarn (for block development)
+- Node.js 14+ and npm (for block development)
 - Composer (for PHP dependency management)
 
 ## Development
@@ -181,63 +181,6 @@ The plugin includes a comprehensive PHPCS configuration (`phpcs.xml.dist`) with:
 - Parallel processing for faster analysis
 - Custom prefixes configuration for WordPress globals
 
-### WordPress Blocks Development
-
-This plugin includes WordPress blocks located in the `src/` directory. The blocks are built using `@wordpress/scripts`.
-
-#### Building Blocks
-
-**Production build:**
-
-```bash
-# Build all blocks for production
-yarn build
-```
-
-**Development mode:**
-
-```bash
-# Start development mode with live reload
-yarn start
-```
-
-#### Block Structure
-
-The plugin includes both static and dynamic blocks:
-
-```text
-src/
-├── dynamic/            # Server-side rendered blocks
-│   └── dynamic-block/  # Dynamic Block Example
-└── static/             # Client-side rendered blocks
-    └── static-block/   # Static Block Example
-```
-
-#### Block Development Tips
-
-1. **Install dependencies first:**
-
-   ```bash
-   yarn install
-   ```
-
-2. **For active development:**
-
-   ```bash
-   yarn start  # Enables hot reload
-   ```
-
-3. **Before deployment:**
-
-   ```bash
-   yarn build  # Creates optimized production files
-   ```
-
-4. **File naming conventions:**
-   - Use `.scss` files for styles (not `.css`)
-   - Each block needs `index.js`, `block.json`
-   - Dynamic blocks need `render.php`
-
 ### Project Structure
 
 ```text
@@ -246,37 +189,44 @@ my-plugin-boilerplate/
 ├── build/               # Compiled WordPress blocks
 │   ├── dynamic/         # Built dynamic blocks
 │   ├── static/          # Built static blocks
-│   └── blocks-manifest.php
+│   └── tailwind-styles.css # Compiled Tailwind CSS
 ├── includes/            # PHP classes (PSR-4 autoloaded)
 │   ├── Action/          # WordPress actions and hooks
 │   ├── Admin/           # Admin interface classes
+│   │   └── Sections/    # Settings page sections (Features, Debug, etc.)
 │   ├── Blocks/          # Block registration and management
 │   ├── Debug/           # Logging and debug utilities
 │   ├── Login/           # User authentication features
-│   └── PostType/        # Custom post types
+│   ├── PostType/        # Custom post types
+│   └── Utils/           # Utility classes and helpers
 ├── languages/           # Translation files
 ├── node_modules/        # Node.js dependencies
 ├── src/                 # WordPress blocks source code
 │   ├── dynamic/         # Dynamic (server-rendered) blocks
-│   └── static/          # Static (client-rendered) blocks
+│   ├── static/          # Static (client-rendered) blocks
+│   └── tailwind.css     # Tailwind CSS entry point
 ├── vendor/              # Composer dependencies
-├── tests/              # PHPUnit test suite
-│   ├── bootstrap.php   # Test bootstrap file
-│   ├── unit/           # Unit tests
-│   ├── integration/    # Integration tests
-│   └── logs/           # Test logs and reports
+├── tests/               # PHPUnit test suite
+│   ├── bootstrap.php    # Test bootstrap file
+│   ├── unit/            # Unit tests
+│   ├── integration/     # Integration tests
+│   └── logs/            # Test logs and reports
 ├── composer.json        # Composer configuration
 ├── package.json         # Node.js dependencies and scripts
-├── phpcs.xml.dist      # PHPCS configuration (WordPress standards)
-├── phpcs.xml           # Local PHPCS configuration (gitignored)
-├── phpunit.xml.dist    # PHPUnit configuration
-├── phpunit.xml         # Local PHPUnit configuration (gitignored)
-├── yarn.lock           # Yarn lock file
-├── .gitignore          # Git ignore rules
+├── tailwind.config.js   # Tailwind CSS configuration with custom palette
+├── postcss.config.js    # PostCSS configuration for Tailwind
+├── webpack.config.js    # Webpack configuration for blocks
+├── .prettierrc          # Prettier code formatting configuration
+├── phpcs.xml.dist       # PHPCS configuration (WordPress standards)
+├── phpcs.xml            # Local PHPCS configuration (gitignored)
+├── phpunit.xml.dist     # PHPUnit configuration
+├── phpunit.xml          # Local PHPUnit configuration (gitignored)
+├── package-lock.json    # npm lock file
+├── .gitignore           # Git ignore rules
 ├── my-plugin-boilerplate.php  # Main plugin file
-├── uninstall.php       # Plugin cleanup on uninstall
-├── readme.txt          # WordPress.org repository readme
-└── README.md           # This file
+├── uninstall.php        # Plugin cleanup on uninstall
+├── readme.txt           # WordPress.org repository readme
+└── README.md            # This file
 
 # Generated at runtime (wp-content level):
 wp-content/
@@ -468,22 +418,22 @@ composer phpunit:coverage    # Generate coverage report
 
 ```bash
 # Install JavaScript dependencies
-yarn install
+npm install
 
 # Lint JavaScript code
-yarn lint:js
+npm run lint:js
 
 # Lint CSS/SCSS code
-yarn lint:css
+npm run lint:css
 
 # Format code automatically
-yarn format
+npm run format
 
 # Build blocks for production
-yarn build
+npm run build
 
 # Test blocks in development mode
-yarn start
+npm start
 ```
 
 ## License
@@ -501,30 +451,6 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE](https://w
 
 ---
 
-## Changelog
-
-### 1.0.0
-
-- Initial release
-- PSR-4 autoloading implementation
-- Composer integration with automated scripts
-- **WordPress Coding Standards** complete integration (PHPCS)
-- **Debug and Logging System** with secure JSON logging to `wp-content/`
-- **Visual Debug Output** with WordPress-style formatting and security
-- **Automatic Block Registration** system with security (WP_Filesystem)
-- WordPress Blocks development environment (@wordpress/scripts)
-- Advanced code quality tools with variable analysis
-- WordPress i18n compliance with modern practices
-- Comprehensive security enhancements (`.htaccess`, directory protection)
-- Development workflow optimization
-- Complete PHPUnit testing framework integration
-
 ## Support
 
 For support, feature requests, or bug reports, please use the [GitHub Issues](https://github.com/PierreHunout/my-plugin-boilerplate/issues) page.
-
-## Acknowledgments
-
-- WordPress community for coding standards and best practices
-- Composer for dependency management
-- PHP_CodeSniffer and PHPStan for code quality tools

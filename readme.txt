@@ -31,7 +31,10 @@ My Plugin Boilerplate is a comprehensive starting point for modern WordPress plu
 * WordPress Coding Standards (PHPCS) configuration
 * PHPUnit testing suite with unit and integration tests
 * WordPress Blocks development with @wordpress/scripts
-* Both static and dynamic blocks examples
+* 5 custom blocks: banner, dynamic-block, toggle, slider, static-block
+* Tailwind CSS integration with custom color palette
+* Custom Class field for all blocks with Tailwind support
+* InnerBlocks support for nested block composition
 * Automatic block registration system
 * Modern JavaScript ES6+ and React support
 * SCSS/CSS compilation and optimization
@@ -46,6 +49,22 @@ My Plugin Boilerplate is a comprehensive starting point for modern WordPress plu
 * Projects requiring comprehensive testing
 * Developers building custom Gutenberg blocks
 * Anyone following WordPress best practices
+
+**Tailwind CSS:**
+
+* Custom color palette: primary, secondary, accent, neutral (50-950 shades)
+* Safelist configuration for always-available utility classes
+* Custom class field in all blocks for easy styling
+* Production-ready with optimized CSS output
+
+**Block Features:**
+
+* Custom Class field for Tailwind CSS classes
+* InnerBlocks support for nested content
+* Toggle block with Dark/Light mode and state persistence
+* Parent-child block state communication
+* Block instance limitations (e.g., toggle limited to 1 per static-block)
+* WordPress pages list integration
 
 == Installation ==
 
@@ -65,8 +84,8 @@ My Plugin Boilerplate is a comprehensive starting point for modern WordPress plu
 
 1. Clone the repository to your plugins directory
 2. Run `composer install` to install PHP dependencies
-3. Run `yarn install` to install JavaScript dependencies
-4. Run `yarn build` to compile blocks
+3. Run `npm install` to install JavaScript dependencies
+4. Run `npm run build` to compile blocks
 5. Activate the plugin in WordPress admin
 
 == Frequently Asked Questions ==
