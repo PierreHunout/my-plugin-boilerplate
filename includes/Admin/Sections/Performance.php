@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Performance Settings Section
  *
@@ -11,7 +12,6 @@
 
 namespace MyPluginBoilerplate\Admin\Sections;
 
-use MyPluginBoilerplate\Config\Config;
 use MyPluginBoilerplate\Manager\FieldManager;
 
 /**
@@ -20,7 +20,7 @@ use MyPluginBoilerplate\Manager\FieldManager;
  *
  * @since 1.0.0
  */
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
 	die;
 }
 
@@ -31,7 +31,8 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @since 1.0.0
  */
-class Performance {
+class Performance
+{
 
 	/**
 	 * Render performance settings tab
@@ -40,11 +41,14 @@ class Performance {
 	 *
 	 * @return void
 	 */
-	public static function render(): void {
-		?>
+	public static function render(): void
+	{
+		$settings = get_option('my_plugin_boilerplate_settings', []);
+		$performance = isset($settings['performance']) ? $settings['performance'] : [];
+?>
 		<table class="form-table">
 			<tr>
-				<th scope="row"><?php esc_html_e( 'Cache Blocks', 'my-plugin-boilerplate' ); ?></th>
+				<th scope="row"><?php esc_html_e('Cache Blocks', 'my-plugin-boilerplate'); ?></th>
 				<td>
 					<?php
 					FieldManager::render(
@@ -52,11 +56,11 @@ class Performance {
 						[
 							'id'             => 'performance_cache_blocks',
 							'title'          => '',
-							'checkbox_label' => __( 'Enable block registration caching', 'my-plugin-boilerplate' ),
-							'value'          => Config::get( 'performance.cache_blocks' ) ? 1 : 0,
+							'checkbox_label' => __('Enable block registration caching', 'my-plugin-boilerplate'),
+							'value'          => isset($performance['cache_blocks']) && $performance['cache_blocks'] ? 1 : 0,
 							'checkbox_value' => 1,
 							'attributes'     => [
-								'name' => 'my_plugin_boilerplate_config[performance][cache_blocks]',
+								'name' => 'my_plugin_boilerplate_settings[performance][cache_blocks]',
 							],
 						]
 					);
@@ -64,7 +68,7 @@ class Performance {
 				</td>
 			</tr>
 			<tr>
-				<th scope="row"><?php esc_html_e( 'Cache Duration', 'my-plugin-boilerplate' ); ?></th>
+				<th scope="row"><?php esc_html_e('Cache Duration', 'my-plugin-boilerplate'); ?></th>
 				<td>
 					<?php
 					FieldManager::render(
@@ -72,12 +76,12 @@ class Performance {
 						[
 							'id'          => 'performance_cache_duration',
 							'title'       => '',
-							'value'       => Config::get( 'performance.cache_duration', 3600 ),
+							'value'       => isset($performance['cache_duration']) ? $performance['cache_duration'] : 3600,
 							'min'         => 300,
 							'max'         => 86400,
-							'description' => __( 'Cache duration in seconds (5 minutes to 24 hours).', 'my-plugin-boilerplate' ),
+							'description' => __('Cache duration in seconds (5 minutes to 24 hours).', 'my-plugin-boilerplate'),
 							'attributes'  => [
-								'name' => 'my_plugin_boilerplate_config[performance][cache_duration]',
+								'name' => 'my_plugin_boilerplate_settings[performance][cache_duration]',
 							],
 						]
 					);
@@ -85,7 +89,7 @@ class Performance {
 				</td>
 			</tr>
 			<tr>
-				<th scope="row"><?php esc_html_e( 'Minify Assets', 'my-plugin-boilerplate' ); ?></th>
+				<th scope="row"><?php esc_html_e('Minify Assets', 'my-plugin-boilerplate'); ?></th>
 				<td>
 					<?php
 					FieldManager::render(
@@ -93,11 +97,11 @@ class Performance {
 						[
 							'id'             => 'performance_minify_assets',
 							'title'          => '',
-							'checkbox_label' => __( 'Enable asset minification', 'my-plugin-boilerplate' ),
-							'value'          => Config::get( 'performance.minify_assets' ) ? 1 : 0,
+							'checkbox_label' => __('Enable asset minification', 'my-plugin-boilerplate'),
+							'value'          => isset($performance['minify_assets']) && $performance['minify_assets'] ? 1 : 0,
 							'checkbox_value' => 1,
 							'attributes'     => [
-								'name' => 'my_plugin_boilerplate_config[performance][minify_assets]',
+								'name' => 'my_plugin_boilerplate_settings[performance][minify_assets]',
 							],
 						]
 					);
@@ -105,7 +109,7 @@ class Performance {
 				</td>
 			</tr>
 		</table>
-		<?php
+<?php
 	}
 
 	/**
@@ -115,25 +119,29 @@ class Performance {
 	 *
 	 * @return array Processed performance configuration
 	 */
-	public static function process(): array {
+	public static function process(): array
+	{
 		$config = [];
 
+		// Check if we have the correct POST structure
+		$post_config = isset($_POST['my_plugin_boilerplate_settings']) ? $_POST['my_plugin_boilerplate_settings'] : [];
+
 		// Cache blocks (checkbox)
-		$config['performance.cache_blocks'] = isset( $_POST['performance_cache_blocks'] ) && '1' === $_POST['performance_cache_blocks'];
+		$config['performance.cache_blocks'] = isset($post_config['performance']['cache_blocks']) && '1' === $post_config['performance']['cache_blocks'];
 
 		// Cache duration (number)
-		if ( isset( $_POST['performance_cache_duration'] ) ) {
-			$duration = absint( $_POST['performance_cache_duration'] );
-			if ( $duration >= 60 && $duration <= 86400 ) { // 1 minute to 24 hours
+		if (isset($post_config['performance']['cache_duration'])) {
+			$duration = absint($post_config['performance']['cache_duration']);
+			if ($duration >= 60 && $duration <= 86400) { // 1 minute to 24 hours
 				$config['performance.cache_duration'] = $duration;
 			}
 		}
 
 		// Minify assets (checkbox)
-		$config['performance.minify_assets'] = isset( $_POST['performance_minify_assets'] ) && '1' === $_POST['performance_minify_assets'];
+		$config['performance.minify_assets'] = isset($post_config['performance']['minify_assets']) && '1' === $post_config['performance']['minify_assets'];
 
 		// Lazy load (checkbox)
-		$config['performance.lazy_load'] = isset( $_POST['performance_lazy_load'] ) && '1' === $_POST['performance_lazy_load'];
+		$config['performance.lazy_load'] = isset($post_config['performance']['lazy_load']) && '1' === $post_config['performance']['lazy_load'];
 
 		return $config;
 	}

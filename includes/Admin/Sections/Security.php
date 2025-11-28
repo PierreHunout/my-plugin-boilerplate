@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Security Settings Section
  *
@@ -11,7 +12,6 @@
 
 namespace MyPluginBoilerplate\Admin\Sections;
 
-use MyPluginBoilerplate\Config\Config;
 use MyPluginBoilerplate\Manager\FieldManager;
 
 /**
@@ -20,7 +20,7 @@ use MyPluginBoilerplate\Manager\FieldManager;
  *
  * @since 1.0.0
  */
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
 	die;
 }
 
@@ -31,7 +31,8 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @since 1.0.0
  */
-class Security {
+class Security
+{
 
 	/**
 	 * Render security settings tab
@@ -40,11 +41,14 @@ class Security {
 	 *
 	 * @return void
 	 */
-	public static function render(): void {
-		?>
+	public static function render(): void
+	{
+		$settings = get_option('my_plugin_boilerplate_settings', []);
+		$security = isset($settings['security']) ? $settings['security'] : [];
+?>
 		<table class="form-table">
 			<tr>
-				<th scope="row"><?php esc_html_e( 'Rate Limiting', 'my-plugin-boilerplate' ); ?></th>
+				<th scope="row"><?php esc_html_e('Rate Limiting', 'my-plugin-boilerplate'); ?></th>
 				<td>
 					<?php
 					FieldManager::render(
@@ -52,11 +56,11 @@ class Security {
 						[
 							'id'             => 'security_rate_limit',
 							'title'          => '',
-							'checkbox_label' => __( 'Enable API rate limiting', 'my-plugin-boilerplate' ),
-							'value'          => Config::get( 'security.rate_limit' ) ? 1 : 0,
+							'checkbox_label' => __('Enable API rate limiting', 'my-plugin-boilerplate'),
+							'value'          => isset($security['rate_limit']) && $security['rate_limit'] ? 1 : 0,
 							'checkbox_value' => 1,
 							'attributes'     => [
-								'name' => 'my_plugin_boilerplate_config[security][rate_limit]',
+								'name' => 'my_plugin_boilerplate_settings[security][rate_limit]',
 							],
 						]
 					);
@@ -64,7 +68,7 @@ class Security {
 				</td>
 			</tr>
 			<tr>
-				<th scope="row"><?php esc_html_e( 'Max Requests', 'my-plugin-boilerplate' ); ?></th>
+				<th scope="row"><?php esc_html_e('Max Requests', 'my-plugin-boilerplate'); ?></th>
 				<td>
 					<?php
 					FieldManager::render(
@@ -72,12 +76,12 @@ class Security {
 						[
 							'id'          => 'security_max_requests',
 							'title'       => '',
-							'value'       => Config::get( 'security.max_requests' ),
+							'value'       => isset($security['max_requests']) ? $security['max_requests'] : 100,
 							'min'         => 10,
 							'max'         => 1000,
-							'description' => __( 'Maximum requests per time window.', 'my-plugin-boilerplate' ),
+							'description' => __('Maximum requests per time window.', 'my-plugin-boilerplate'),
 							'attributes'  => [
-								'name' => 'my_plugin_boilerplate_config[security][max_requests]',
+								'name' => 'my_plugin_boilerplate_settings[security][max_requests]',
 							],
 						]
 					);
@@ -85,7 +89,7 @@ class Security {
 				</td>
 			</tr>
 		</table>
-		<?php
+<?php
 	}
 
 	/**
@@ -95,30 +99,34 @@ class Security {
 	 *
 	 * @return array Processed security configuration
 	 */
-	public static function process(): array {
+	public static function process(): array
+	{
 		$config = [];
 
+		// Check if we have the correct POST structure
+		$post_config = isset($_POST['my_plugin_boilerplate_settings']) ? $_POST['my_plugin_boilerplate_settings'] : [];
+
 		// Rate limit (checkbox)
-		$config['security.rate_limit'] = isset( $_POST['security_rate_limit'] ) && '1' === $_POST['security_rate_limit'];
+		$config['security.rate_limit'] = isset($post_config['security']['rate_limit']) && '1' === $post_config['security']['rate_limit'];
 
 		// Max requests (number)
-		if ( isset( $_POST['security_max_requests'] ) ) {
-			$max_requests = absint( $_POST['security_max_requests'] );
-			if ( $max_requests >= 10 && $max_requests <= 1000 ) {
+		if (isset($post_config['security']['max_requests'])) {
+			$max_requests = absint($post_config['security']['max_requests']);
+			if ($max_requests >= 10 && $max_requests <= 1000) {
 				$config['security.max_requests'] = $max_requests;
 			}
 		}
 
 		// Time window (number)
-		if ( isset( $_POST['security_time_window'] ) ) {
-			$time_window = absint( $_POST['security_time_window'] );
-			if ( $time_window >= 60 && $time_window <= 86400 ) { // 1 minute to 24 hours
+		if (isset($post_config['security']['time_window'])) {
+			$time_window = absint($post_config['security']['time_window']);
+			if ($time_window >= 60 && $time_window <= 86400) { // 1 minute to 24 hours
 				$config['security.time_window'] = $time_window;
 			}
 		}
 
 		// Strict validation (checkbox)
-		$config['security.strict_validation'] = isset( $_POST['security_strict_validation'] ) && '1' === $_POST['security_strict_validation'];
+		$config['security.strict_validation'] = isset($post_config['security']['strict_validation']) && '1' === $post_config['security']['strict_validation'];
 
 		return $config;
 	}

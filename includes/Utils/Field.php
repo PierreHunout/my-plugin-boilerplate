@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Abstract Field Base Class
  *
@@ -19,7 +20,7 @@ use Exception;
  *
  * @since 1.0.0
  */
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
 	die;
 }
 
@@ -31,7 +32,8 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @since 1.0.0
  */
-abstract class Field {
+abstract class Field
+{
 
 	/**
 	 * Field ID
@@ -94,8 +96,9 @@ abstract class Field {
 	 *
 	 * @param array $args Field configuration arguments.
 	 */
-	public function __construct( array $args = [] ) {
-		$this->setup( $args );
+	public function __construct(array $args = [])
+	{
+		$this->setup($args);
 		$this->properties();
 	}
 
@@ -113,8 +116,9 @@ abstract class Field {
 	 *
 	 * @throws Exception When attempting to unserialize utility class.
 	 */
-	public function __wakeup() {
-		throw new Exception( 'Cannot unserialize a field instance.' );
+	public function __wakeup()
+	{
+		throw new Exception('Cannot unserialize a field instance.');
 	}
 
 	/**
@@ -126,7 +130,8 @@ abstract class Field {
 	 *
 	 * @return void
 	 */
-	protected function setup( array $args ): void {
+	protected function setup(array $args): void
+	{
 		$defaults = [
 			'id'          => '',
 			'title'       => '',
@@ -138,7 +143,7 @@ abstract class Field {
 			'disabled'    => false,
 		];
 
-		$this->args        = wp_parse_args( $args, $defaults );
+		$this->args        = wp_parse_args($args, $defaults);
 		$this->id          = $this->args['id'];
 		$this->title       = $this->args['title'];
 		$this->description = $this->args['description'];
@@ -155,7 +160,8 @@ abstract class Field {
 	 *
 	 * @return void
 	 */
-	protected function properties(): void {
+	protected function properties(): void
+	{
 		// Override in child classes
 	}
 
@@ -181,7 +187,7 @@ abstract class Field {
 	 *
 	 * @return mixed Sanitized field value.
 	 */
-	abstract public function sanitize( $value );
+	abstract public function sanitize($value);
 
 	/**
 	 * Validate field value
@@ -194,12 +200,13 @@ abstract class Field {
 	 *
 	 * @return bool|string True if valid, error message if invalid.
 	 */
-	public function validate( $value ) {
+	public function validate($value)
+	{
 		// Basic required field validation
-		if ( ! empty( $this->args['required'] ) && empty( $value ) ) {
+		if (! empty($this->args['required']) && empty($value)) {
 			return sprintf(
 				/* translators: %s: field title */
-				__( '%s is required.', 'my-plugin-boilerplate' ),
+				__('%s is required.', 'my-plugin-boilerplate'),
 				$this->title
 			);
 		}
@@ -214,7 +221,8 @@ abstract class Field {
 	 *
 	 * @return string
 	 */
-	public function get_id(): string {
+	public function get_id(): string
+	{
 		return $this->id;
 	}
 
@@ -225,7 +233,8 @@ abstract class Field {
 	 *
 	 * @return string
 	 */
-	public function get_title(): string {
+	public function get_title(): string
+	{
 		return $this->title;
 	}
 
@@ -236,7 +245,8 @@ abstract class Field {
 	 *
 	 * @return string
 	 */
-	public function get_description(): string {
+	public function get_description(): string
+	{
 		return $this->description;
 	}
 
@@ -247,7 +257,8 @@ abstract class Field {
 	 *
 	 * @return mixed
 	 */
-	public function get_value() {
+	public function get_value()
+	{
 		return $this->value;
 	}
 
@@ -260,7 +271,8 @@ abstract class Field {
 	 *
 	 * @return void
 	 */
-	public function set_value( $value ): void {
+	public function set_value($value): void
+	{
 		$this->value = $value;
 	}
 
@@ -271,34 +283,35 @@ abstract class Field {
 	 *
 	 * @return string
 	 */
-	protected function get_attributes(): string {
+	protected function get_attributes(): string
+	{
 		$attributes = [];
 
 		// Add common attributes
-		if ( ! empty( $this->args['required'] ) ) {
+		if (! empty($this->args['required'])) {
 			$attributes[] = 'required="required"';
 		}
 
-		if ( ! empty( $this->args['readonly'] ) ) {
+		if (! empty($this->args['readonly'])) {
 			$attributes[] = 'readonly="readonly"';
 		}
 
-		if ( ! empty( $this->args['disabled'] ) ) {
+		if (! empty($this->args['disabled'])) {
 			$attributes[] = 'disabled="disabled"';
 		}
 
 		// Add custom attributes
-		foreach ( $this->attributes as $attr => $value ) {
-			if ( is_bool( $value ) ) {
-				if ( $value ) {
-					$attributes[] = esc_attr( $attr ) . '="' . esc_attr( $attr ) . '"';
+		foreach ($this->attributes as $attr => $value) {
+			if (is_bool($value)) {
+				if ($value) {
+					$attributes[] = esc_attr($attr) . '="' . esc_attr($attr) . '"';
 				}
 			} else {
-				$attributes[] = esc_attr( $attr ) . '="' . esc_attr( $value ) . '"';
+				$attributes[] = esc_attr($attr) . '="' . esc_attr($value) . '"';
 			}
 		}
 
-		return implode( ' ', $attributes );
+		return implode(' ', $attributes);
 	}
 
 	/**
@@ -308,9 +321,10 @@ abstract class Field {
 	 *
 	 * @return void
 	 */
-	protected function render_description(): void {
-		if ( ! empty( $this->description ) ) {
-			echo '<p class="description">' . wp_kses_post( $this->description ) . '</p>';
+	protected function render_description(): void
+	{
+		if (! empty($this->description)) {
+			echo '<p class="description">' . wp_kses_post($this->description) . '</p>';
 		}
 	}
 
@@ -323,7 +337,13 @@ abstract class Field {
 	 *
 	 * @return string
 	 */
-	protected function get_name( string $option_name = 'my_plugin_boilerplate_options' ): string {
+	protected function get_name(string $option_name = 'my_plugin_boilerplate_settings'): string
+	{
+		// Check if custom name is provided in attributes
+		if (isset($this->args['attributes']['name'])) {
+			return $this->args['attributes']['name'];
+		}
+
 		return $option_name . '[' . $this->id . ']';
 	}
 
@@ -334,7 +354,8 @@ abstract class Field {
 	 *
 	 * @return string
 	 */
-	protected function get_field_id(): string {
+	protected function get_field_id(): string
+	{
 		return 'my_plugin_boilerplate_' . $this->id;
 	}
 }

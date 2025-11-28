@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is responsible for handling the debugging functionality in the WordPress plugin.
  *
@@ -10,7 +11,6 @@
 namespace MyPluginBoilerplate\Utils;
 
 use MyPluginBoilerplate\MyPluginBoilerplate;
-use MyPluginBoilerplate\Config\Config;
 use MyPluginBoilerplate\Utils;
 use DateTime;
 use DateTimeZone;
@@ -21,7 +21,7 @@ use DateTimeZone;
  *
  * @since 1.0.0
  */
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
 	die;
 }
 
@@ -32,7 +32,8 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @since 1.0.0
  */
-class Debug {
+class Debug
+{
 
 	/**
 	 * Prevent instantiation of the Debug class
@@ -55,8 +56,9 @@ class Debug {
 	 *
 	 * @throws \RuntimeException Always throws exception to prevent unserialization.
 	 */
-	public function __wakeup() {
-		throw new \RuntimeException( 'Cannot unserialize a singleton.' );
+	public function __wakeup()
+	{
+		throw new \RuntimeException('Cannot unserialize a singleton.');
 	}
 
 	/**
@@ -70,34 +72,33 @@ class Debug {
 	 *
 	 * @return void
 	 */
-	public static function log( $file, $data ): void {
-		// Only log when debug is enabled via configuration.
-		if ( ! Config::get( 'debug.enabled', false ) ) {
-			return;
-		}
-
+	public static function log($file, $data): void
+	{
 		// Store logs in wp-content/my-plugin-boilerplate-logs/ for persistence and security
-		$slug = MyPluginBoilerplate::$slug;
-		$path = WP_CONTENT_DIR . $slug . '/-logs/';
+		//$slug = MyPluginBoilerplate::$slug;
+		$slug = 'my-plugin-boilerplate';
+		$upload_dir = wp_upload_dir();
+		$base_dir   = isset($upload_dir['basedir']) ? $upload_dir['basedir'] : WP_CONTENT_DIR . '/uploads';
+		$path = $base_dir . '/' . $slug . '-logs/';
 
 		$filesystem = Utils::get_filesystem();
 
-		if ( ! $filesystem->is_dir( $path ) ) {
-			$filesystem->mkdir( $path, 0755 );
+		if (! $filesystem->is_dir($path)) {
+			$filesystem->mkdir($path, 0755);
 
 			// Add .htaccess for security (deny direct access to log files)
 			$htaccess = "# Deny access to log files\n<Files \"*.json\">\n\tOrder allow,deny\n\tDeny from all\n</Files>\n\n# Deny access to directory listing\nOptions -Indexes";
-			$filesystem->put_contents( $path . '.htaccess', $htaccess, 0644 );
+			$filesystem->put_contents($path . '.htaccess', $htaccess, 0644);
 
 			// Add index.php to prevent directory browsing
 			$index = "<?php\n// Code so quiet, you can hear the silence.\n";
-			$filesystem->put_contents( $path . 'index.php', $index, 0644 );
+			$filesystem->put_contents($path . 'index.php', $index, 0644);
 		}
 
-		$file_path = $path . sanitize_file_name( $file ) . '-' . time() . '.json';
-		$type      = gettype( $data );
-		$date      = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
-		$date      = $date->format( 'Y-m-d H:i:sP' );
+		$file_path = $path . sanitize_file_name($file) . '-' . time() . '.json';
+		$type      = gettype($data);
+		$date      = new DateTime('now', new DateTimeZone('UTC'));
+		$date      = $date->format('Y-m-d H:i:sP');
 
 		$log = [
 			'date' => $date,
@@ -105,11 +106,11 @@ class Debug {
 			'data' => $data,
 		];
 
-		$json_data = wp_json_encode( $log, JSON_PRETTY_PRINT );
+		$json_data = wp_json_encode($log, JSON_PRETTY_PRINT);
 
-		if ( false !== $json_data ) {
+		if (false !== $json_data) {
 			// Attempt to write log file with error handling
-			$filesystem->put_contents( $file_path, PHP_EOL . $json_data, 0644 );
+			$filesystem->put_contents($file_path, PHP_EOL . $json_data, 0644);
 		}
 	}
 
@@ -124,30 +125,26 @@ class Debug {
 	 *
 	 * @return void
 	 */
-	public static function print( $data, $stop = false ): void {
-		// Only output debug information when debug is enabled via configuration.
-		if ( ! Config::get( 'debug.enabled', false ) ) {
-			return;
-		}
-
+	public static function print($data, $stop = false): void
+	{
 		echo '<div style="position: relative; margin: 24px 0; background: #2271b1; color: #fafafa; padding: 20px; border-radius: 3px; z-index: 9999;"><pre style="white-space: pre-wrap; word-wrap: break-word;">';
 
 		// Get plugin name
 		$name = MyPluginBoilerplate::$name;
-		echo '<strong style="color: #b5ddfeff;">' . esc_html( $name ) . ' Debug Output:</strong>' . PHP_EOL . PHP_EOL;
+		echo '<strong style="color: #b5ddfeff;">' . esc_html($name) . ' Debug Output:</strong>' . PHP_EOL . PHP_EOL;
 
 		// Get $data type
-		$data_type = gettype( $data );
-		echo '<strong style="color: #b5ddfeff;">Type: ' . esc_html( $data_type ) . '</strong>' . PHP_EOL . PHP_EOL;
+		$data_type = gettype($data);
+		echo '<strong style="color: #b5ddfeff;">Type: ' . esc_html($data_type) . '</strong>' . PHP_EOL . PHP_EOL;
 
 		// Use wp_json_encode for safe and readable output.
-		$json_output = wp_json_encode( $data, JSON_PRETTY_PRINT );
-		echo esc_html( $json_output ? $json_output : 'Unable to encode data' );
+		$json_output = wp_json_encode($data, JSON_PRETTY_PRINT);
+		echo esc_html($json_output ? $json_output : 'Unable to encode data');
 
 		echo '</pre></div>';
 
-		if ( true === $stop ) {
-			wp_die( 'Debug output terminated.' );
+		if (true === $stop) {
+			wp_die('Debug output terminated.');
 		}
 	}
 }
