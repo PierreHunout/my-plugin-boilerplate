@@ -1,61 +1,53 @@
 <?php
-/**
- * PHP file to use when rendering the block type on the server to show on the front end.
- *
- * The following variables are exposed to the file:
- *     $attributes (array): The block attributes.
- *     $content (string): The block default content.
- *     $block (WP_Block): The block instance.
- *
- * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
- *
- * @package MyFirstInteractiveBlock
- */
 
-// Generates a unique id for aria-controls.
-$unique_id = wp_unique_id( 'p-' );
-
-// Adds the global state.
-wp_interactivity_state(
-	'create-block',
+// Get all published pages
+$pages = get_pages(
 	array(
-		'isDark'    => false,
-		'darkText'  => esc_html__( 'Switch to Light', 'my-plugin-boilerplate' ),
-		'lightText' => esc_html__( 'Switch to Dark', 'my-plugin-boilerplate' ),
-		'themeText' => esc_html__( 'Switch to Dark', 'my-plugin-boilerplate' ),
+		'sort_column' => 'post_title',
+		'sort_order'  => 'ASC',
+		'post_status' => 'publish',
 	)
 );
 
+// Get custom class from plugin settings
+$settings = get_option('my_plugin_boilerplate_settings', array());
+$custom_class = isset($settings['features']['custom_class']) ? $settings['features']['custom_class'] : '';
+
+// Get customClassName from block attributes
+$custom_class_name = isset($attributes['customClassName']) ? $attributes['customClassName'] : '';
+
+// Combine classes
+$classes = array_filter(array($custom_class, $custom_class_name));
+
+// Add custom class to block wrapper attributes
+$wrapper_attributes = get_block_wrapper_attributes(
+	array(
+		'class' => implode(' ', $classes),
+	)
+);
 ?>
+<div <?php echo $wrapper_attributes; ?>>
+	<h3><?php esc_html_e('Dynamic Block Container', 'my-plugin-boilerplate'); ?></h3>
 
-<?php /* @phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
-<div
-	<?php echo get_block_wrapper_attributes(); ?>
-	data-wp-interactive="my-plugin-boilerplate"
-	<?php echo wp_interactivity_data_wp_context( array( 'isOpen' => false ) ); ?>
-	data-wp-watch="callbacks.logIsOpen"
-	data-wp-class--dark-theme="state.isDark"
->
-	<button
-		data-wp-on--click="actions.toggleTheme"
-		data-wp-text="state.themeText"
-	></button>
+	<div class="wp-block-create-block-dynamic-block__pages">
+		<h4><?php esc_html_e('Pages List', 'my-plugin-boilerplate'); ?></h4>
+		<?php if (empty($pages)) : ?>
+			<p><?php esc_html_e('No pages found.', 'my-plugin-boilerplate'); ?></p>
+		<?php else : ?>
+			<ul>
+				<?php foreach ($pages as $page) : ?>
+					<li>
+						<a href="<?php echo esc_url(get_permalink($page->ID)); ?>">
+							<?php echo esc_html($page->post_title); ?>
+						</a>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		<?php endif; ?>
+	</div>
 
-	<button
-		data-wp-on--click="actions.toggleOpen"
-		data-wp-bind--aria-expanded="context.isOpen"
-		aria-controls="<?php echo esc_attr( $unique_id ); ?>"
-	>
-		<?php esc_html_e( 'Toggle', 'my-plugin-boilerplate' ); ?>
-	</button>
-
-	<p
-		id="<?php echo esc_attr( $unique_id ); ?>"
-		data-wp-bind--hidden="!context.isOpen"
-	>
-		<?php
-			esc_html_e( 'My First Interactive Block - hello from an interactive block!', 'my-plugin-boilerplate' );
-		?>
-	</p>
+	<div class="wp-block-create-block-dynamic-block__content">
+		<h4><?php esc_html_e('Nested Blocks', 'my-plugin-boilerplate'); ?></h4>
+		<?php echo $content; ?>
+	</div>
 </div>
-<?php /* @phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>
