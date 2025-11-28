@@ -45,18 +45,23 @@ export default function Edit({ clientId, attributes, setAttributes }) {
 
 	const blockProps = useBlockProps({
 		className:
-			[customClass || '', customClassName || ''].filter(Boolean).join(' ') ||
-			undefined,
+			[customClass || '', customClassName || '']
+				.filter(Boolean)
+				.join(' ') || undefined,
 	});
 
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={__('Block Settings', 'my-plugin-boilerplate')}>
+				<PanelBody
+					title={__('Block Settings', 'my-plugin-boilerplate')}
+				>
 					<TextControl
 						label={__('Custom Class', 'my-plugin-boilerplate')}
 						value={customClassName}
-						onChange={(value) => setAttributes({ customClassName: value })}
+						onChange={(value) =>
+							setAttributes({ customClassName: value })
+						}
 						help={__(
 							'Add a custom CSS class to this block',
 							'my-plugin-boilerplate'
@@ -96,10 +101,10 @@ export default function Edit({ clientId, attributes, setAttributes }) {
 					</p>
 				)}
 				<div className="wp-block-create-block-static-block__content">
-					{
-						// eslint-disable-next-line prettier/prettier
-						<InnerBlocks allowedBlocks={allowedBlocks} template={TEMPLATE} />
-					}
+					<InnerBlocks
+						allowedBlocks={allowedBlocks}
+						template={TEMPLATE}
+					/>
 				</div>
 			</div>
 		</>

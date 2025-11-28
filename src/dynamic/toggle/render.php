@@ -1,16 +1,4 @@
 <?php
-
-/**
- * PHP file to use when rendering the block type on the server to show on the front end.
- *
- * The following variables are exposed to the file:
- *     $attributes (array): The block attributes.
- *     $content (string): The block default content.
- *     $block (WP_Block): The block instance.
- *
- * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
- */
-
 // Generates a unique id for aria-controls.
 $unique_id = wp_unique_id('p-');
 
@@ -19,7 +7,7 @@ $is_dark = isset($attributes['isDark']) ? $attributes['isDark'] : false;
 $custom_class_name = isset($attributes['customClassName']) ? $attributes['customClassName'] : '';
 
 // Build wrapper classes
-$classes = array();
+$classes = [];
 if ($is_dark) {
 	$classes[] = 'dark-theme';
 }
@@ -30,19 +18,19 @@ if (!empty($custom_class_name)) {
 // Adds the global state.
 wp_interactivity_state(
 	'create-block',
-	array(
+	[
 		'isDark'    => $is_dark,
 		'darkText'  => esc_html__('Switch to Light', 'my-plugin-boilerplate'),
 		'lightText' => esc_html__('Switch to Dark', 'my-plugin-boilerplate'),
-		'themeText'	=> $is_dark ? esc_html__('Switch to Light', 'my-plugin-boilerplate') : esc_html__('Switch to Dark', 'my-plugin-boilerplate'),
-	)
+		'themeText'	=> $is_dark ? esc_html__('Switch to Light', 'my-plugin-boilerplate') : esc_html__('Switch to Dark', 'my-plugin-boilerplate')
+	]
 );
 ?>
 
 <div
-	<?php echo get_block_wrapper_attributes(array('class' => implode(' ', $classes))); ?>
+	<?php echo get_block_wrapper_attributes(['class' => implode(' ', $classes)]); ?>
 	data-wp-interactive="create-block"
-	<?php echo wp_interactivity_data_wp_context(array('isOpen' => false)); ?>
+	<?php echo wp_interactivity_data_wp_context(['isOpen' => false]); ?>
 	data-wp-watch="callbacks.logIsOpen"
 	data-wp-class--dark-theme="state.isDark">
 	<button

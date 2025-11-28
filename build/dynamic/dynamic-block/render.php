@@ -2,15 +2,15 @@
 
 // Get all published pages
 $pages = get_pages(
-	array(
+	[
 		'sort_column' => 'post_title',
 		'sort_order'  => 'ASC',
-		'post_status' => 'publish',
-	)
+		'post_status' => 'publish'
+	]
 );
 
 // Get custom class from plugin settings
-$settings = get_option('my_plugin_boilerplate_settings', array());
+$settings = get_option('my_plugin_boilerplate_settings', []);
 $custom_class = isset($settings['features']['custom_class']) ? $settings['features']['custom_class'] : '';
 
 // Get customClassName from block attributes
@@ -21,9 +21,9 @@ $classes = array_filter(array($custom_class, $custom_class_name));
 
 // Add custom class to block wrapper attributes
 $wrapper_attributes = get_block_wrapper_attributes(
-	array(
-		'class' => implode(' ', $classes),
-	)
+	[
+		'class' => implode(' ', $classes)
+	]
 );
 ?>
 <div <?php echo $wrapper_attributes; ?>>

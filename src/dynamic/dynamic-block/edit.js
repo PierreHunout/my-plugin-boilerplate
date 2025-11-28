@@ -11,8 +11,9 @@ export default function Edit({ attributes, setAttributes }) {
 
 	const blockProps = useBlockProps({
 		className:
-			[customClass || '', customClassName || ''].filter(Boolean).join(' ') ||
-			undefined,
+			[customClass || '', customClassName || '']
+				.filter(Boolean)
+				.join(' ') || undefined,
 	});
 
 	const pages = useSelect((select) => {
@@ -27,11 +28,15 @@ export default function Edit({ attributes, setAttributes }) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={__('Block Settings', 'my-plugin-boilerplate')}>
+				<PanelBody
+					title={__('Block Settings', 'my-plugin-boilerplate')}
+				>
 					<TextControl
 						label={__('Custom Class', 'my-plugin-boilerplate')}
 						value={customClassName}
-						onChange={(value) => setAttributes({ customClassName: value })}
+						onChange={(value) =>
+							setAttributes({ customClassName: value })
+						}
 						help={__(
 							'Add a custom CSS class to this block',
 							'my-plugin-boilerplate'
@@ -40,7 +45,9 @@ export default function Edit({ attributes, setAttributes }) {
 				</PanelBody>
 			</InspectorControls>
 			<div {...blockProps}>
-				<h3>{__('Dynamic Block Container', 'my-plugin-boilerplate')}</h3>
+				<h3>
+					{__('Dynamic Block Container', 'my-plugin-boilerplate')}
+				</h3>
 
 				{customClass && (
 					<span
@@ -67,7 +74,9 @@ export default function Edit({ attributes, setAttributes }) {
 						<ul>
 							{pages.map((page) => (
 								<li key={page.id}>
-									<a href={page.link}>{page.title.rendered}</a>
+									<a href={page.link}>
+										{page.title.rendered}
+									</a>
 								</li>
 							))}
 						</ul>
