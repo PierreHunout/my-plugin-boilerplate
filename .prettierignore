@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build files
+build/
+dist/
+
+# Tests & Logs
+tests/coverage-html/
+*.log
+
+# System
+.DS_Store
+
+# Minified files
+*.min.js
+*.min.css
+
+# Lock files
+package-lock.json
+composer.lock

@@ -1,15 +1,22 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "my-plugin-boilerplate/static-block",
-	"version": "1.0.0",
-	"title": "Static Block Example",
+	"name": "create-block/static-block",
+	"version": "0.1.0",
+	"title": "Static Block",
 	"category": "widgets",
-	"icon": "list-view",
-	"description": "Example block scaffolded.",
+	"icon": "smiley",
+	"description": "Example block scaffolded with Create Block tool.",
 	"example": {},
+	"attributes": {
+		"customClassName": {
+			"type": "string",
+			"default": ""
+		}
+	},
 	"supports": {
-		"html": false
+		"html": false,
+		"customClassName": false
 	},
 	"textdomain": "my-plugin-boilerplate",
 	"editorScript": "file:./index.js",

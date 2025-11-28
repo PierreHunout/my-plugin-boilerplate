@@ -1,32 +1,40 @@
 {
 	"name": "my-plugin-boilerplate",
-	"private": true,
 	"version": "1.0.0",
 	"description": "A WordPress plugin boilerplate with modern development tools and best practices.",
+	"homepage": "https://github.com/PierreHunout/my-plugin-boilerplate#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/PierreHunout/my-plugin-boilerplate.git"
+	},
+	"license": "GPL-3.0-or-later",
 	"author": "Pierre Hunout",
-	"license": "GPL-3.0",
 	"main": "build/index.js",
 	"scripts": {
-		"build": "wp-scripts build --blocks-manifest",
+		"build": "wp-scripts build",
+		"start": "wp-scripts start",
 		"format": "wp-scripts format",
+		"format:fix": "prettier --write \"**/*.{js,jsx,json,css,scss,md}\"",
 		"lint:css": "wp-scripts lint-style",
 		"lint:js": "wp-scripts lint-js",
+		"lint:js:fix": "eslint \"**/*.{js,jsx}\" --fix",
 		"packages-update": "wp-scripts packages-update",
-		"plugin-zip": "wp-scripts plugin-zip",
-		"start": "wp-scripts start --blocks-manifest",
-		"env": "wp-env"
+		"plugin-zip": "wp-scripts plugin-zip"
 	},
 	"dependencies": {
-		"@wordpress/block-editor": "^7.0.2",
-		"@wordpress/blocks": "^11.1.0",
-		"@wordpress/i18n": "^4.2.2"
+		"@wordpress/block-editor": "^15.9.0",
+		"@wordpress/blocks": "^15.9.0",
+		"@wordpress/i18n": "^6.9.0"
 	},
 	"devDependencies": {
-		"@wordpress/env": "^10.32.0",
-		"@wordpress/scripts": "^30.25.0",
-		"css-loader": "^6.5.1",
-		"mini-css-extract-plugin": "^2.4.4",
-		"sass-loader": "^12.3.0",
-		"style-loader": "^3.3.1"
+		"@wordpress/scripts": "^31.1.0",
+		"ajv": "^8.17.1",
+		"autoprefixer": "^10.4.22",
+		"eslint": "^8.57.1",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-prettier": "^5.5.4",
+		"postcss": "^8.5.6",
+		"prettier": "^3.6.2",
+		"tailwindcss": "^3.4.18"
 	}
 }

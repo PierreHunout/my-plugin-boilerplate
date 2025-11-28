@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Debug Settings Section
  *
@@ -11,7 +12,6 @@
 
 namespace MyPluginBoilerplate\Admin\Sections;
 
-use MyPluginBoilerplate\Config\Config;
 use MyPluginBoilerplate\Manager\FieldManager;
 
 /**
@@ -20,7 +20,7 @@ use MyPluginBoilerplate\Manager\FieldManager;
  *
  * @since 1.0.0
  */
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
 	die;
 }
 
@@ -31,7 +31,8 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @since 1.0.0
  */
-class Debug {
+class Debug
+{
 
 	/**
 	 * Render debug settings tab
@@ -40,11 +41,14 @@ class Debug {
 	 *
 	 * @return void
 	 */
-	public static function render(): void {
-		?>
+	public static function render(): void
+	{
+		$settings = get_option('my_plugin_boilerplate_settings', []);
+		$debug = isset($settings['debug']) ? $settings['debug'] : [];
+?>
 		<table class="form-table">
 			<tr>
-				<th scope="row"><?php esc_html_e( 'Enable Debug Mode', 'my-plugin-boilerplate' ); ?></th>
+				<th scope="row"><?php esc_html_e('Enable Debug Mode', 'my-plugin-boilerplate'); ?></th>
 				<td>
 					<?php
 					FieldManager::render(
@@ -52,11 +56,11 @@ class Debug {
 						[
 							'id'             => 'debug_enabled',
 							'title'          => '',
-							'checkbox_label' => __( 'Enable debug logging and output', 'my-plugin-boilerplate' ),
-							'value'          => Config::get( 'debug.enabled' ) ? 1 : 0,
+							'checkbox_label' => __('Enable debug logging and output', 'my-plugin-boilerplate'),
+							'value'          => isset($debug['enabled']) && $debug['enabled'] ? 1 : 0,
 							'checkbox_value' => 1,
 							'attributes'     => [
-								'name' => 'my_plugin_boilerplate_config[debug][enabled]',
+								'name' => 'my_plugin_boilerplate_settings[debug][enabled]',
 							],
 						]
 					);
@@ -64,7 +68,7 @@ class Debug {
 				</td>
 			</tr>
 			<tr>
-				<th scope="row"><?php esc_html_e( 'Log Level', 'my-plugin-boilerplate' ); ?></th>
+				<th scope="row"><?php esc_html_e('Log Level', 'my-plugin-boilerplate'); ?></th>
 				<td>
 					<?php
 					FieldManager::render(
@@ -72,15 +76,15 @@ class Debug {
 						[
 							'id'         => 'debug_log_level',
 							'title'      => '',
-							'value'      => Config::get( 'debug.log_level', 'error' ),
+							'value'      => isset($debug['log_level']) ? $debug['log_level'] : 'error',
 							'options'    => [
-								'error'   => __( 'Error', 'my-plugin-boilerplate' ),
-								'warning' => __( 'Warning', 'my-plugin-boilerplate' ),
-								'info'    => __( 'Info', 'my-plugin-boilerplate' ),
-								'debug'   => __( 'Debug', 'my-plugin-boilerplate' ),
+								'error'   => __('Error', 'my-plugin-boilerplate'),
+								'warning' => __('Warning', 'my-plugin-boilerplate'),
+								'info'    => __('Info', 'my-plugin-boilerplate'),
+								'debug'   => __('Debug', 'my-plugin-boilerplate'),
 							],
 							'attributes' => [
-								'name' => 'my_plugin_boilerplate_config[debug][log_level]',
+								'name' => 'my_plugin_boilerplate_settings[debug][log_level]',
 							],
 						]
 					);
@@ -88,7 +92,7 @@ class Debug {
 				</td>
 			</tr>
 			<tr>
-				<th scope="row"><?php esc_html_e( 'Max Log Files', 'my-plugin-boilerplate' ); ?></th>
+				<th scope="row"><?php esc_html_e('Max Log Files', 'my-plugin-boilerplate'); ?></th>
 				<td>
 					<?php
 					FieldManager::render(
@@ -96,12 +100,12 @@ class Debug {
 						[
 							'id'          => 'debug_max_log_files',
 							'title'       => '',
-							'value'       => Config::get( 'debug.max_log_files', 10 ),
+							'value'       => isset($debug['max_log_files']) ? $debug['max_log_files'] : 10,
 							'min'         => 1,
 							'max'         => 100,
-							'description' => __( 'Maximum number of log files to keep before cleanup.', 'my-plugin-boilerplate' ),
+							'description' => __('Maximum number of log files to keep before cleanup.', 'my-plugin-boilerplate'),
 							'attributes'  => [
-								'name' => 'my_plugin_boilerplate_config[debug][max_log_files]',
+								'name' => 'my_plugin_boilerplate_settings[debug][max_log_files]',
 							],
 						]
 					);
@@ -109,7 +113,7 @@ class Debug {
 				</td>
 			</tr>
 		</table>
-		<?php
+<?php
 	}
 
 	/**
@@ -119,30 +123,34 @@ class Debug {
 	 *
 	 * @return array Processed debug configuration
 	 */
-	public static function process(): array {
+	public static function process(): array
+	{
 		$config = [];
 
+		// Check if we have the correct POST structure
+		$post_config = isset($_POST['my_plugin_boilerplate_settings']) ? $_POST['my_plugin_boilerplate_settings'] : [];
+
 		// Debug enabled (checkbox)
-		$config['debug.enabled'] = isset( $_POST['debug_enabled'] ) && '1' === $_POST['debug_enabled'];
+		$config['debug.enabled'] = isset($post_config['debug']['enabled']) && '1' === $post_config['debug']['enabled'];
 
 		// Log level (select)
-		if ( isset( $_POST['debug_log_level'] ) ) {
-			$log_level = sanitize_text_field( wp_unslash( $_POST['debug_log_level'] ) );
-			if ( in_array( $log_level, [ 'error', 'warning', 'info', 'debug' ], true ) ) {
+		if (isset($post_config['debug']['log_level'])) {
+			$log_level = sanitize_text_field(wp_unslash($post_config['debug']['log_level']));
+			if (in_array($log_level, ['error', 'warning', 'info', 'debug'], true)) {
 				$config['debug.log_level'] = $log_level;
 			}
 		}
 
 		// Log to file (checkbox)
-		$config['debug.log_to_file'] = isset( $_POST['debug_log_to_file'] ) && '1' === $_POST['debug_log_to_file'];
+		$config['debug.log_to_file'] = isset($post_config['debug']['log_to_file']) && '1' === $post_config['debug']['log_to_file'];
 
 		// Log to database (checkbox)
-		$config['debug.log_to_db'] = isset( $_POST['debug_log_to_db'] ) && '1' === $_POST['debug_log_to_db'];
+		$config['debug.log_to_db'] = isset($post_config['debug']['log_to_db']) && '1' === $post_config['debug']['log_to_db'];
 
 		// Max log files (number)
-		if ( isset( $_POST['debug_max_log_files'] ) ) {
-			$max_files = absint( $_POST['debug_max_log_files'] );
-			if ( $max_files > 0 && $max_files <= 100 ) {
+		if (isset($post_config['debug']['max_log_files'])) {
+			$max_files = absint($post_config['debug']['max_log_files']);
+			if ($max_files > 0 && $max_files <= 100) {
 				$config['debug.max_log_files'] = $max_files;
 			}
 		}

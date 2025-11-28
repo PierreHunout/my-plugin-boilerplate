@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Features Settings Section
  *
@@ -11,7 +12,6 @@
 
 namespace MyPluginBoilerplate\Admin\Sections;
 
-use MyPluginBoilerplate\Config\Config;
 use MyPluginBoilerplate\Manager\FieldManager;
 
 /**
@@ -20,7 +20,7 @@ use MyPluginBoilerplate\Manager\FieldManager;
  *
  * @since 1.0.0
  */
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
 	die;
 }
 
@@ -31,7 +31,8 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @since 1.0.0
  */
-class Features {
+class Features
+{
 
 	/**
 	 * Render features settings tab
@@ -40,11 +41,14 @@ class Features {
 	 *
 	 * @return void
 	 */
-	public static function render(): void {
-		?>
+	public static function render(): void
+	{
+		$settings = get_option('my_plugin_boilerplate_settings', []);
+		$features = isset($settings['features']) ? $settings['features'] : [];
+?>
 		<table class="form-table">
 			<tr>
-				<th scope="row"><?php esc_html_e( 'WordPress Blocks', 'my-plugin-boilerplate' ); ?></th>
+				<th scope="row"><?php esc_html_e('WordPress Blocks', 'my-plugin-boilerplate'); ?></th>
 				<td>
 					<?php
 					FieldManager::render(
@@ -52,11 +56,11 @@ class Features {
 						[
 							'id'             => 'features_blocks_enabled',
 							'title'          => '',
-							'checkbox_label' => __( 'Enable WordPress blocks functionality', 'my-plugin-boilerplate' ),
-							'value'          => Config::get( 'features.blocks_enabled' ) ? 1 : 0,
+							'checkbox_label' => __('Enable WordPress blocks functionality', 'my-plugin-boilerplate'),
+							'value'          => isset($features['blocks_enabled']) && $features['blocks_enabled'] ? 1 : 0,
 							'checkbox_value' => 1,
 							'attributes'     => [
-								'name' => 'my_plugin_boilerplate_config[features][blocks_enabled]',
+								'name' => 'my_plugin_boilerplate_settings[features][blocks_enabled]',
 							],
 						]
 					);
@@ -64,7 +68,7 @@ class Features {
 				</td>
 			</tr>
 			<tr>
-				<th scope="row"><?php esc_html_e( 'REST API', 'my-plugin-boilerplate' ); ?></th>
+				<th scope="row"><?php esc_html_e('REST API', 'my-plugin-boilerplate'); ?></th>
 				<td>
 					<?php
 					FieldManager::render(
@@ -72,11 +76,11 @@ class Features {
 						[
 							'id'             => 'features_rest_api_enabled',
 							'title'          => '',
-							'checkbox_label' => __( 'Enable REST API endpoints', 'my-plugin-boilerplate' ),
-							'value'          => Config::get( 'features.rest_api_enabled' ) ? 1 : 0,
+							'checkbox_label' => __('Enable REST API endpoints', 'my-plugin-boilerplate'),
+							'value'          => isset($features['rest_api_enabled']) && $features['rest_api_enabled'] ? 1 : 0,
 							'checkbox_value' => 1,
 							'attributes'     => [
-								'name' => 'my_plugin_boilerplate_config[features][rest_api_enabled]',
+								'name' => 'my_plugin_boilerplate_settings[features][rest_api_enabled]',
 							],
 						]
 					);
@@ -84,7 +88,7 @@ class Features {
 				</td>
 			</tr>
 			<tr>
-				<th scope="row"><?php esc_html_e( 'Admin Dashboard', 'my-plugin-boilerplate' ); ?></th>
+				<th scope="row"><?php esc_html_e('Admin Dashboard', 'my-plugin-boilerplate'); ?></th>
 				<td>
 					<?php
 					FieldManager::render(
@@ -92,11 +96,31 @@ class Features {
 						[
 							'id'             => 'features_admin_dashboard',
 							'title'          => '',
-							'checkbox_label' => __( 'Enable admin dashboard features', 'my-plugin-boilerplate' ),
-							'value'          => Config::get( 'features.admin_dashboard' ) ? 1 : 0,
+							'checkbox_label' => __('Enable admin dashboard features', 'my-plugin-boilerplate'),
+							'value'          => isset($features['admin_dashboard']) && $features['admin_dashboard'] ? 1 : 0,
 							'checkbox_value' => 1,
 							'attributes'     => [
-								'name' => 'my_plugin_boilerplate_config[features][admin_dashboard]',
+								'name' => 'my_plugin_boilerplate_settings[features][admin_dashboard]',
+							],
+						]
+					);
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e('Custom Class Name', 'my-plugin-boilerplate'); ?></th>
+				<td>
+					<?php
+					FieldManager::render(
+						'text',
+						[
+							'id'          => 'features_custom_class',
+							'title'       => '',
+							'value'       => isset($features['custom_class']) ? $features['custom_class'] : '',
+							'placeholder' => __('Enter custom CSS class name', 'my-plugin-boilerplate'),
+							'description' => __('Custom CSS class to add to plugin elements.', 'my-plugin-boilerplate'),
+							'attributes'  => [
+								'name' => 'my_plugin_boilerplate_settings[features][custom_class]',
 							],
 						]
 					);
@@ -104,9 +128,8 @@ class Features {
 				</td>
 			</tr>
 		</table>
-		<?php
+<?php
 	}
-
 	/**
 	 * Process features section fields
 	 *
@@ -114,20 +137,24 @@ class Features {
 	 *
 	 * @return array Processed features configuration
 	 */
-	public static function process(): array {
+	public static function process(): array
+	{
 		$config = [];
 
+		// Check if we have the correct POST structure
+		$post_config = isset($_POST['my_plugin_boilerplate_settings']) ? $_POST['my_plugin_boilerplate_settings'] : [];
+
 		// Blocks enabled (checkbox)
-		$config['features.blocks_enabled'] = isset( $_POST['features_blocks_enabled'] ) && '1' === $_POST['features_blocks_enabled'];
+		$config['features.blocks_enabled'] = isset($post_config['features']['blocks_enabled']) && '1' === $post_config['features']['blocks_enabled'];
 
 		// REST API enabled (checkbox)
-		$config['features.rest_api_enabled'] = isset( $_POST['features_rest_api_enabled'] ) && '1' === $_POST['features_rest_api_enabled'];
+		$config['features.rest_api_enabled'] = isset($post_config['features']['rest_api_enabled']) && '1' === $post_config['features']['rest_api_enabled'];
 
 		// CLI enabled (checkbox)
-		$config['features.cli_enabled'] = isset( $_POST['features_cli_enabled'] ) && '1' === $_POST['features_cli_enabled'];
+		$config['features.cli_enabled'] = isset($post_config['features']['cli_enabled']) && '1' === $post_config['features']['cli_enabled'];
 
 		// Admin dashboard (checkbox)
-		$config['features.admin_dashboard'] = isset( $_POST['features_admin_dashboard'] ) && '1' === $_POST['features_admin_dashboard'];
+		$config['features.admin_dashboard'] = isset($post_config['features']['admin_dashboard']) && '1' === $post_config['features']['admin_dashboard'];
 
 		return $config;
 	}

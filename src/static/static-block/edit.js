@@ -1,38 +1,107 @@
-/**
- * Retrieves the translation of text.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-i18n/
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * React hook that is used to mark the block wrapper element.
- * It provides all the necessary props like the class name.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
- */
-import { useBlockProps } from '@wordpress/block-editor';
-
-/**
- * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
- * Those files can contain any CSS code that gets applied to the editor.
- *
- * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
- */
+import {
+	useBlockProps,
+	InnerBlocks,
+	InspectorControls,
+} from '@wordpress/block-editor';
+import { useSelect } from '@wordpress/data';
+import { PanelBody, TextControl } from '@wordpress/components';
 import './editor.scss';
 
-/**
- * The edit function describes the structure of your block in the context of the
- * editor. This represents what the editor will render when the block is used.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#edit
- *
- * @return {Element} Element to render.
- */
-export default function Edit() {
+const TEMPLATE = [['create-block/banner', {}]];
+
+export default function Edit({ clientId, attributes, setAttributes }) {
+	// Get custom class from plugin settings
+	const customClass = window.myPluginBoilerplateSettings?.customClass || '';
+	const { customClassName } = attributes;
+
+	// Check if toggle block already exists in inner blocks and get its isDark state
+	const { hasToggleBlock, toggleIsDark } = useSelect(
+		(select) => {
+			const { getBlock } = select('core/block-editor');
+			const block = getBlock(clientId);
+			if (!block || !block.innerBlocks) {
+				return { hasToggleBlock: false, toggleIsDark: false };
+			}
+			const toggleBlock = block.innerBlocks.find(
+				(innerBlock) => innerBlock.name === 'create-block/toggle'
+			);
+			return {
+				hasToggleBlock: !!toggleBlock,
+				toggleIsDark: toggleBlock?.attributes?.isDark || false,
+			};
+		},
+		[clientId]
+	);
+
+	// Allowed blocks - exclude toggle if one already exists
+	const allowedBlocks = hasToggleBlock
+		? ['create-block/banner', 'create-block/dynamic-block']
+		: [
+				'create-block/banner',
+				'create-block/toggle',
+				'create-block/dynamic-block',
+			];
+
+	const blockProps = useBlockProps({
+		className:
+			[customClass || '', customClassName || ''].filter(Boolean).join(' ') ||
+			undefined,
+	});
+
 	return (
-		<p { ...useBlockProps() }>
-			{ __( 'Todo List – hello from the editor!', 'my-plugin-boilerplate' ) }
-		</p>
+		<>
+			<InspectorControls>
+				<PanelBody title={__('Block Settings', 'my-plugin-boilerplate')}>
+					<TextControl
+						label={__('Custom Class', 'my-plugin-boilerplate')}
+						value={customClassName}
+						onChange={(value) => setAttributes({ customClassName: value })}
+						help={__(
+							'Add a custom CSS class to this block',
+							'my-plugin-boilerplate'
+						)}
+					/>
+				</PanelBody>
+			</InspectorControls>
+			<div {...blockProps}>
+				<h3 className="text-2xl font-bold mb-4">
+					{__('Static Block', 'my-plugin-boilerplate')}
+				</h3>
+				{customClass && (
+					<span
+						style={{
+							fontSize: '0.8em',
+							opacity: 0.6,
+							marginLeft: '8px',
+						}}
+					>
+						(Class: {customClass})
+					</span>
+				)}
+				{hasToggleBlock && (
+					<p
+						style={{
+							fontSize: '0.9em',
+							padding: '8px',
+							background: toggleIsDark ? '#333' : '#f0f0f0',
+							color: toggleIsDark ? '#fff' : '#000',
+							borderRadius: '4px',
+						}}
+					>
+						{__('Toggle Block:', 'my-plugin-boilerplate')}{' '}
+						{toggleIsDark
+							? __('Dark Mode Active', 'my-plugin-boilerplate')
+							: __('Light Mode Active', 'my-plugin-boilerplate')}
+					</p>
+				)}
+				<div className="wp-block-create-block-static-block__content">
+					{
+						// eslint-disable-next-line prettier/prettier
+						<InnerBlocks allowedBlocks={allowedBlocks} template={TEMPLATE} />
+					}
+				</div>
+			</div>
+		</>
 	);
 }
