@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import { store, getContext } from '@wordpress/interactivity';
 
 const { state } = store('create-block', {
@@ -22,6 +19,7 @@ const { state } = store('create-block', {
 		logIsOpen: () => {
 			const { isOpen } = getContext();
 			// Log the value of `isOpen` each time it changes.
+			// eslint-disable-next-line no-console
 			console.log(`Is open: ${isOpen}`);
 		},
 	},

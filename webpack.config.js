@@ -6,7 +6,11 @@ module.exports = {
 	entry: {
 		...defaultConfig.entry(),
 		'editor-script': path.resolve(process.cwd(), 'src', 'editor-script.js'),
-		'frontend-script': path.resolve(process.cwd(), 'src', 'frontend-script.js'),
+		'frontend-script': path.resolve(
+			process.cwd(),
+			'src',
+			'frontend-script.js'
+		),
 		'tailwind-styles': path.resolve(process.cwd(), 'src', 'tailwind.css'),
 	},
 };
