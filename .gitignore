@@ -3,6 +3,7 @@ composer.lock
 
 # Node
 /node_modules/
+package-lock.json
 
 # Composer
 /vendor/
