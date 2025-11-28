@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is responsible for handling the block registration functionality in the WordPress plugin.
  * It automatically discovers and registers all WordPress blocks found in the src/ directory.
@@ -23,7 +24,7 @@ use Throwable;
  *
  * @since 1.0.0
  */
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
 	die;
 }
 
@@ -34,7 +35,8 @@ if ( ! defined( 'WPINC' ) ) {
  *
  * @since 1.0.0
  */
-class RegisterBlock {
+class RegisterBlock
+{
 
 	/**
 	 * Plugin slug for block registration.
@@ -54,11 +56,40 @@ class RegisterBlock {
 	 *
 	 * @return void
 	 */
-	public function init(): void {
+	public function init(): void
+	{
 		// Ensure slug is assigned from main plugin class at runtime
 		self::$slug = MyPluginBoilerplate::$slug;
 
-		add_action( 'init', [ __CLASS__, 'register_blocks' ] );
+		add_action('init', [__CLASS__, 'register_blocks']);
+		add_action('enqueue_block_editor_assets', [__CLASS__, 'enqueue_block_assets']);
+		add_action('enqueue_block_editor_assets', [__CLASS__, 'localize_settings']);
+		add_action('enqueue_block_assets', [__CLASS__, 'enqueue_tailwind_styles']);
+		add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_frontend_assets']);
+	}
+
+	/**
+	 * Localize plugin settings for use in block editor.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return void
+	 */
+	public static function localize_settings(): void
+	{
+		$settings = get_option('my_plugin_boilerplate_settings', []);
+
+		wp_localize_script(
+			'wp-blocks',
+			'myPluginBoilerplateSettings',
+			[
+				'customClass' => isset($settings['features']['custom_class']) ? $settings['features']['custom_class'] : '',
+				'features' => isset($settings['features']) ? $settings['features'] : [],
+				'debug' => isset($settings['debug']) ? $settings['debug'] : [],
+				'performance' => isset($settings['performance']) ? $settings['performance'] : [],
+				'security' => isset($settings['security']) ? $settings['security'] : [],
+			]
+		);
 	}
 
 	/**
@@ -74,162 +105,116 @@ class RegisterBlock {
 	 *
 	 * @return void
 	 */
-	public static function register_blocks(): void {
+	public static function register_blocks(): void
+	{
 		try {
+			$build_dir = MY_PLUGIN_BOILERPLATE_PATH . 'build';
+
 			// Initialize WordPress filesystem
 			$filesystem = Utils::get_filesystem();
 
-			if ( ! $filesystem ) {
-				throw new RuntimeException( 'Failed to initialize WordPress filesystem' );
+			if (! $filesystem) {
+				throw new RuntimeException('Failed to initialize WordPress filesystem');
 			}
 
-			// Get the plugin root path using the defined constant
-			$path  = MY_PLUGIN_BOILERPLATE_PATH;
-			$build = $path . 'build/';
-
-			// Check if build directory exists using WP_Filesystem
-			if ( ! $filesystem->is_dir( $build ) ) {
-				throw new RuntimeException( sprintf( 'Blocks source directory not found: %s', $build ) );
+			// Check if build directory exists
+			if (! $filesystem->is_dir($build_dir)) {
+				throw new RuntimeException(sprintf('Build directory not found: %s', $build_dir));
 			}
 
-			// Find all subdirectories in build directory
-			$blocks = self::get_blocks( $build, $filesystem );
+			// Scan recursively for all block.json files
+			$blocks_registered = 0;
+			$iterator = new \RecursiveIteratorIterator(
+				new \RecursiveDirectoryIterator($build_dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+				\RecursiveIteratorIterator::SELF_FIRST
+			);
 
-			if ( empty( $blocks ) ) {
-				throw new RuntimeException( sprintf( '[%1$s] No blocks found in: %2$s', self::$slug, $build ) );
-			}
+			foreach ($iterator as $file) {
+				if ($file->isFile() && $file->getFilename() === 'block.json') {
+					$block_dir = $file->getPath();
 
-			// Register each block found
-			foreach ( $blocks as $block ) {
-				try {
-					$dir = dirname( $block );
+					try {
+						// Register the block using the directory containing block.json
+						$result = register_block_type($block_dir);
 
-					if ( ! $filesystem->is_dir( $dir ) ) {
-						throw new InvalidArgumentException( sprintf( 'Block parent path is not a directory: %s', $block ) );
-					}
-
-					// Validate block directory using WP_Filesystem
-					if ( ! $filesystem->is_readable( $dir ) ) {
-						throw new InvalidArgumentException( sprintf( 'Block directory is not readable: %s', $dir ) );
-					}
-
-					// Register the block using the directory (WordPress will automatically read block.json)
-					$result = register_block_type( $dir );
-
-					if ( $result instanceof \WP_Block_Type ) {
-						Debug::log( 'RegisterBlock', sprintf( 'Successfully registered block: %s', $dir ) );
-					} else {
-						Debug::log( 'RegisterBlock', sprintf( 'Failed to register block: %s', $dir ) );
-					}
-				} catch ( Throwable $e ) {
-					// Log individual block registration errors
-					Debug::log( 'RegisterBlock', sprintf( 'Error registering block from %s: %s in %s on line %d', $dir, $e->getMessage(), basename( $e->getFile() ), $e->getLine() ) );
-
-					// Continue with next block instead of stopping entirely
-					continue;
-				}
-			}
-
-			Debug::log( 'RegisterBlock', sprintf( 'Total blocks found and processed: %d', count( $blocks ) ) );
-		} catch ( Throwable $error ) {
-			// Log general errors
-			Debug::log( 'RegisterBlock', sprintf( 'Error in register_blocks(): %s in %s on line %d', $error->getMessage(), basename( $error->getFile() ), $error->getLine() ) );
-		}
-	}
-
-	/**
-	 * Recursively finds all subdirectories in a given directory using WP_Filesystem.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string              $directory The directory to search in.
-	 * @param \WP_Filesystem_Base $filesystem The WordPress filesystem instance.
-	 *
-	 * @throws InvalidArgumentException If the directory parameter is empty.
-	 * @throws RuntimeException If the directory does not exist or is not readable.
-	 *
-	 * @return array Array of subdirectory paths.
-	 */
-	private static function get_blocks( string $directory, $filesystem ): array {
-		$dirs = [];
-
-		try {
-			// Validate directory parameter
-			if ( empty( $directory ) ) {
-				throw new InvalidArgumentException( 'Directory parameter cannot be empty' );
-			}
-
-			// Check if directory exists using WP_Filesystem
-			if ( ! $filesystem->is_dir( $directory ) ) {
-				throw new RuntimeException( sprintf( 'Directory does not exist: %s', $directory ) );
-			}
-
-			// Check if directory is readable using WP_Filesystem
-			if ( ! $filesystem->is_readable( $directory ) ) {
-				throw new RuntimeException( sprintf( 'Directory is not readable: %s', $directory ) );
-			}
-
-			// Recursively scan directories using WP_Filesystem
-			$dirs = self::get_blocks_json( $directory, $filesystem );
-		} catch ( Throwable $error ) {
-			// Log directory scanning errors
-			Debug::log( 'RegisterBlock', sprintf( 'Error scanning directory %s: %s in %s on line %d', $directory, $error->getMessage(), basename( $error->getFile() ), $error->getLine() ) );
-		}
-
-		return $dirs;
-	}
-
-	/**
-	 * Recursively scans directories for block.json files using WP_Filesystem.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param string              $directory The directory to scan.
-	 * @param \WP_Filesystem_Base $filesystem The WordPress filesystem instance.
-	 *
-	 * @throws Throwable For any errors encountered during directory scanning.
-	 *
-	 * @return array Array of block.json file paths.
-	 */
-	private static function get_blocks_json( string $directory, $filesystem ): array {
-		$blocks = [];
-
-		try {
-			// Get directory listing using WP_Filesystem
-			$files = $filesystem->dirlist( $directory, false, true );
-
-			if ( ! is_array( $files ) ) {
-				return $blocks;
-			}
-
-			foreach ( $files as $name => $info ) {
-				$path = trailingslashit( $directory ) . $name;
-
-				try {
-					if ( $info['type'] === 'd' ) {
-						// It's a directory, scan recursively
-						$subdirectories = self::get_blocks_json( $path, $filesystem );
-						$blocks         = array_merge( $blocks, $subdirectories );
-					} elseif ( $info['type'] === 'f' && $name === 'block.json' ) {
-						// It's a block.json file
-						if ( $filesystem->is_readable( $path ) ) {
-							$blocks[] = $path;
-						} else {
-							Debug::log( 'RegisterBlock', sprintf( 'Block file not readable: %s', $path ) );
+						if (! $result instanceof \WP_Block_Type) {
+							Debug::log('RegisterBlock', sprintf('✗ Failed to register block from: %s', basename($block_dir)));
 						}
-					}
-				} catch ( Throwable $e ) {
-					// Log file-specific errors but continue processing
-					Debug::log( 'RegisterBlock', sprintf( 'Error processing %s: %s', $path, $e->getMessage() ) );
 
-					continue;
+						$blocks_registered++;
+					} catch (Throwable $e) {
+						Debug::log('RegisterBlock', sprintf('✗ Error registering %s: %s', basename($block_dir), $e->getMessage()));
+					}
 				}
 			}
-		} catch ( Throwable $error ) {
-			// Log scanning errors
-			Debug::log( 'RegisterBlock', sprintf( 'Error scanning directory %s: %s', $directory, $error->getMessage() ) );
-		}
 
-		return $blocks;
+			if ($blocks_registered === 0) {
+				Debug::log('RegisterBlock', sprintf('[%s] No blocks were registered. Check if build directory contains block.json files.', self::$slug));
+			}
+		} catch (Throwable $error) {
+			// Log general errors
+			Debug::log('RegisterBlock', sprintf('Error in register_blocks(): %s in %s on line %d', $error->getMessage(), basename($error->getFile()), $error->getLine()));
+		}
+	}
+
+	/**
+	 * Enqueue block editor assets.
+	 * 
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public static function enqueue_block_assets()
+	{
+		$build_path = MY_PLUGIN_BOILERPLATE_PATH . 'build';
+		$build_url = MY_PLUGIN_BOILERPLATE_URL . 'build';
+		$asset_file = include $build_path . '/editor-script.asset.php';
+
+		wp_enqueue_script(
+			'editor-script-js',
+			$build_url . '/editor-script.js',
+			$asset_file['dependencies'],
+			$asset_file['version'],
+			false
+		);
+	}
+
+	/**
+	 * Enqueue Tailwind CSS styles for blocks (editor and frontend)
+	 * 
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public static function enqueue_tailwind_styles()
+	{
+		$build_path = MY_PLUGIN_BOILERPLATE_PATH . 'build';
+		$build_url = MY_PLUGIN_BOILERPLATE_URL . 'build';
+
+		wp_enqueue_style(
+			'my-plugin-boilerplate-tailwind',
+			$build_url . '/tailwind-styles.css',
+			[],
+			filemtime($build_path . '/tailwind-styles.css')
+		);
+	}
+
+	/**
+	 * Enqueues the block assets for the frontend
+	 * 
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public static function enqueue_frontend_assets()
+	{
+		$build_path = MY_PLUGIN_BOILERPLATE_PATH . 'build';
+		$build_url = MY_PLUGIN_BOILERPLATE_URL . 'build';
+		$asset_file = include $build_path . '/frontend-script.asset.php';
+
+		wp_enqueue_script(
+			'frontend-script-js',
+			$build_url . '/frontend-script.js',
+			$asset_file['dependencies'],
+			$asset_file['version'],
+			true
+		);
 	}
 }
